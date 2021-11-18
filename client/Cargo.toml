@@ -1,5 +1,5 @@
 [package]
-name = "komodo-rpc"
+name = "vrsc-rpc"
 description = "A wrapper for Komodo RPCs"
 version = "0.1.1"
 authors = ["Jorian <hey@jorian.dev>"]
@@ -8,7 +8,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-komodo-rpc-json = { version = "0.1.0", path = "../json" }
+vrsc-rpc-json = { version = "0.1.0", path = "../json" }
 
 jsonrpc = "0.11"
 os_info = "2.0"

@@ -7,13 +7,13 @@ use std::result;
 
 use crate::coin_config::{ConfigFile, Auth};
 use crate::bitcoin::BlockHash;
-use crate::json::komodo::util::address::AddressType;
-use crate::json::komodo::util::amount::Amount;
+use crate::json::vrsc::util::address::AddressType;
+use crate::json::vrsc::util::amount::Amount;
 use crate::json::*;
 use crate::{bitcoin, json};
 
-use komodo_rpc_json::komodo::PrivateKey;
-use komodo_rpc_json::{Address, GetTransactionResult};
+use vrsc_rpc_json::vrsc::{Address, PrivateKey};
+use vrsc_rpc_json::GetTransactionResult;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -253,7 +253,7 @@ pub trait RpcApi: Sized {
         self.call("getrawmempool", &[into_json(true)?])
     }
 
-    fn get_spent_info(&self, txid: bitcoin::Txid, index: u32) -> Result<SpentInfoResult> {
+    fn get_spent_info(&self, _txid: bitcoin::Txid, _index: u32) -> Result<SpentInfoResult> {
         // let mut hashmap: HashMap<String, String> = HashMap::new();
         // hashmap.insert(String::from("txid"), txid.to_string());
         // hashmap.insert(String::from("index"), index.to_string());
@@ -327,7 +327,7 @@ pub trait RpcApi: Sized {
         let outputs_converted = serde_json::Map::from_iter(
             outputs
                 .iter()
-                .map(|(k, v)| (k.clone(), serde_json::Value::from(v.as_kmd()))),
+                .map(|(k, v)| (k.clone(), serde_json::Value::from(v.as_vrsc()))),
         );
         let mut args = [
             into_json(inputs)?,
@@ -384,7 +384,7 @@ pub trait RpcApi: Sized {
     ) -> Result<String> {
         // maximum of 15 in a msig.
         if n_required > 15 {
-            return Err(Error::KMDError(String::from(
+            return Err(Error::VRSCError(String::from(
                 "No more than 15 signers in a msig allowed",
             )));
         }
@@ -405,10 +405,10 @@ pub trait RpcApi: Sized {
         self.call("convertpassphrase", &[passphrase.into()])
     }
 
-    fn dump_privkey(&self, address: json::Address) -> Result<PrivateKey> {
+    fn dump_privkey(&self, address: Address) -> Result<PrivateKey> {
         match address.addr_type {
             AddressType::Shielded => {
-                return Err(Error::KMDError(String::from(
+                return Err(Error::VRSCError(String::from(
                     "no support for shielded addresses for this call",
                 )))
             }
@@ -427,7 +427,7 @@ pub trait RpcApi: Sized {
             opt_into_json(minconf)?,
             opt_into_json(include_watchonly)?,
         ];
-        Ok(Amount::from_kmd(self.call(
+        Ok(Amount::from_vrsc(self.call(
             "getbalance",
             handle_defaults(&mut args, &[0.into(), null()]),
         )?)?)
@@ -443,7 +443,7 @@ pub trait RpcApi: Sized {
 
     fn get_received_by_address(&self, address: &Address, minconf: Option<usize>) -> Result<Amount> {
         let mut args = [address.to_string().into(), opt_into_json(minconf)?];
-        Ok(Amount::from_kmd(self.call(
+        Ok(Amount::from_vrsc(self.call(
             "getreceivedbyaddress",
             handle_defaults(&mut args, &[1.into()]),
         )?)?)
@@ -611,7 +611,7 @@ pub trait RpcApi: Sized {
         let amounts_converted = serde_json::Map::from_iter(
             amounts
                 .iter()
-                .map(|(k, v)| (k.to_string().clone(), serde_json::Value::from(v.as_kmd()))),
+                .map(|(k, v)| (k.to_string().clone(), serde_json::Value::from(v.as_vrsc()))),
         );
         let mut args = [
             "".into(),
@@ -640,7 +640,7 @@ pub trait RpcApi: Sized {
     ) -> Result<bitcoin::Txid> {
         let mut args = [
             into_json(address.to_string())?,
-            into_json(amount.as_kmd())?,
+            into_json(amount.as_vrsc())?,
             opt_into_json(minconf)?,
             opt_into_json(comment)?,
             opt_into_json(comment_to)?,

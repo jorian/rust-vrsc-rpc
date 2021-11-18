@@ -1,5 +1,5 @@
 [package]
-name = "komodo-rpc-json"
+name = "vrsc-rpc-json"
 description = ""
 version = "0.1.1"
 authors = ["jorian"]
@@ -16,4 +16,5 @@ serde_json = "1"
 hex = "0.3"
 
 bitcoin = { version = "0.26.2", features = [ "use-serde" ] }
-komodo = { version = "0.1.0", git = "https://github.com/jorian/rust-komodo" }
+# vrsc = { version = "0.1.0", git = "ssh://github.com/jorian/rust-vrsc" }
+vrsc = { version = "0.1.0", path = "../../rust-vrsc" }

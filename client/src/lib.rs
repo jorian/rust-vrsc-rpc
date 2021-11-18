@@ -1,4 +1,4 @@
-#![crate_name = "komodo_rpc"]
+#![crate_name = "vrsc_rpc"]
 #![crate_type = "rlib"]
 
 #[allow(unused)]
@@ -8,9 +8,9 @@ extern crate serde_json;
 
 pub extern crate jsonrpc;
 
-pub extern crate komodo_rpc_json;
+pub extern crate vrsc_rpc_json;
 pub use json::bitcoin;
-pub use komodo_rpc_json as json;
+pub use vrsc_rpc_json as json;
 // pub use crate::client::coin_config::CoinConfig;
 
 mod client;

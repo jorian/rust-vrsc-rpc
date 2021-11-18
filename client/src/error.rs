@@ -1,4 +1,4 @@
-use komodo_rpc_json::komodo;
+use vrsc_rpc_json::vrsc;
 use std::fmt::Formatter;
 use std::num::ParseIntError;
 use std::{error, fmt, io};
@@ -11,8 +11,8 @@ pub enum Error {
     ParseIntError(ParseIntError),
     InvalidConfigFile,
     Json(serde_json::error::Error),
-    KMDError(String),
-    InvalidAmount(komodo::util::amount::ParseAmountError),
+    VRSCError(String),
+    InvalidAmount(vrsc::util::amount::ParseAmountError),
 }
 
 impl error::Error for Error {
@@ -23,7 +23,7 @@ impl error::Error for Error {
             Error::IOError(ref e) => Some(e),
             Error::InvalidConfigFile => None,
             Error::Json(ref e) => Some(e),
-            Error::KMDError(_) => None,
+            Error::VRSCError(_) => None,
             Error::InvalidAmount(ref e) => Some(e),
         }
     }
@@ -37,7 +37,7 @@ impl fmt::Display for Error {
             Error::IOError(ref e) => write!(f, "IO error: {}", e),
             Error::InvalidConfigFile => write!(f, "Error in config file"),
             Error::Json(ref e) => write!(f, "JSON error: {}", e),
-            Error::KMDError(ref e) => write!(f, "KMD daemon error: {}", e),
+            Error::VRSCError(ref e) => write!(f, "VRSC daemon error: {}", e),
             Error::InvalidAmount(ref e) => write!(f, "invalid amount: {}", e),
         }
     }
@@ -67,8 +67,8 @@ impl From<serde_json::error::Error> for Error {
     }
 }
 
-impl From<komodo::util::amount::ParseAmountError> for Error {
-    fn from(e: komodo::util::amount::ParseAmountError) -> Error {
+impl From<vrsc::util::amount::ParseAmountError> for Error {
+    fn from(e: vrsc::util::amount::ParseAmountError) -> Error {
         Error::InvalidAmount(e)
     }
 }

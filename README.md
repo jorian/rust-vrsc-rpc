@@ -1,6 +1,4 @@
-# rust-komodo-rpc
-
-A continuation of komodorpc-rust-client, heavily inspired by 
+# rust-vrsc-rpc
 
 ### Goals
 - Learn Rust

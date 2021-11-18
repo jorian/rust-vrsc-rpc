@@ -1,24 +1,27 @@
-#![crate_name = "komodo_rpc_json"]
+#![crate_name = "vrsc_rpc_json"]
 #![crate_type = "rlib"]
 
 pub extern crate bitcoin;
-pub extern crate komodo;
+pub extern crate vrsc;
 
 #[allow(unused)]
 #[macro_use] // `macro_use` is needed for v1.24.0 compilation.
 extern crate serde;
 extern crate serde_json;
 
-use crate::komodo::SignedAmount;
+use crate::vrsc::SignedAmount;
 use bitcoin::{BlockHash, PubkeyHash, Script, ScriptHash, Txid};
-use komodo::util::amount::Amount;
-pub use komodo::Address;
-use komodo::{PrivateKey, PublicKey};
+use vrsc::util::amount::Amount;
+use vrsc::Address;
+use vrsc::{PrivateKey, PublicKey};
 use serde::*;
-use std::fmt::Display;
-use std::str::FromStr;
-
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    num::ParseIntError,
+    str::FromStr,
+    str
+};
 
 #[derive(Clone, Debug)]
 pub enum PubkeyOrAddress<'a> {
@@ -211,7 +214,7 @@ pub struct ListReceivedByAddressResult {
     pub involves_watch_only: Option<bool>,
     pub address: Address,
     account: String,
-    #[serde(with = "komodo::util::amount::serde::as_kmd")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: Amount,
     pub confirmations: u32,
 }
@@ -226,10 +229,10 @@ pub struct ListSinceBlockTransactions {
     account: String,
     pub address: Option<Address>,
     pub category: ListSinceBlockCategory,
-    #[serde(with = "komodo::util::amount::serde::as_kmd")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: SignedAmount,
     pub vout: u16,
-    #[serde(with = "komodo::util::amount::serde::as_kmd::opt", default)]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc::opt", default)]
     pub fee: Option<SignedAmount>,
     pub confirmations: u32,
     pub blockhash: BlockHash,
@@ -255,10 +258,10 @@ pub struct ListTransactionsResult {
     account: String,
     pub address: Address,
     pub category: ListSinceBlockCategory,
-    #[serde(with = "komodo::util::amount::serde::as_kmd")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: SignedAmount,
     pub vout: u16,
-    #[serde(with = "komodo::util::amount::serde::as_kmd::opt", default)]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc::opt", default)]
     pub fee: Option<SignedAmount>,
     pub confirmations: u32,
     pub blockhash: BlockHash,
@@ -279,7 +282,7 @@ pub struct ListUnspentResult {
     pub address: Option<Address>,
     #[serde(rename = "scriptPubKey")]
     pub script_pub_key: Script,
-    #[serde(with = "komodo::util::amount::serde::as_kmd", default)]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc", default)]
     pub amount: SignedAmount,
     pub confirmations: u32,
     #[serde(rename = "redeemScript")]
@@ -322,9 +325,9 @@ pub struct GetRawTransactionVinScriptSig {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetRawTransactionVout {
-    #[serde(with = "komodo::util::amount::serde::as_kmd")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub value: Amount,
-    // #[serde(with = "komodo::util::amount::serde::as_kmd::opt")]
+    // #[serde(with = "vrsc::util::amount::serde::as_kmd::opt")]
     // pub interest: Option<Amount>,
     pub n: u32,
     #[serde(rename = "scriptPubKey")]
@@ -344,9 +347,9 @@ pub struct GetRawTransactionVoutScriptPubKey {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetRawTransactionVJoinSplit {
-    #[serde(with = "komodo::util::amount::serde::as_kmd")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub vpub_old: Amount,
-    #[serde(with = "komodo::util::amount::serde::as_kmd")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub vpub_new: Amount,
     pub anchor: String,
     // TODO hexes:
@@ -639,9 +642,6 @@ pub struct TokelData {
     pub token_royalty_percentage: f32,
     pub token_arbitrary_data_field: Option<String>, // todo this can be its own type and see if it's JSON or other structures.
 }
-
-use std::str;
-use std::{fmt::Write, num::ParseIntError};
 
 impl TokelData {
     pub fn from_data_string(data: &str) -> Self {
