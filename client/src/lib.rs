@@ -11,9 +11,11 @@ pub extern crate jsonrpc;
 pub extern crate komodo_rpc_json;
 pub use json::bitcoin;
 pub use komodo_rpc_json as json;
+// pub use crate::client::coin_config::CoinConfig;
 
 mod client;
 mod error;
+mod coin_config;
 
 pub use client::*;
 pub use error::Error;
