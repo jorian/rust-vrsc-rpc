@@ -27,33 +27,34 @@ impl ConfigFile {
             match os_info::get().os_type() {
                 OSType::Ubuntu | OSType::Linux => path.push(".komodo"),
                 OSType::Macos | OSType::Windows => path.push("Komodo"),
-                _ => return Err(Error::IOError(io::Error::from(ErrorKind::Other))),
+                _ => return Err(Error::IOError(ErrorKind::Other.into())),
             }
 
             if !path.is_dir() {
-                return Err(Error::IOError(io::Error::from(ErrorKind::NotFound)));
+                return Err(Error::IOError(ErrorKind::NotFound.into()));
             }
 
             Ok(path)
         } else {
-            return Err(Error::IOError(io::Error::from(ErrorKind::NotFound)));
+            return Err(Error::IOError(ErrorKind::NotFound.into()));
         }
     }
 
-    pub fn new(coin: &str) -> Result<Self> {
-        let mut path = self::ConfigFile::get_komodo_installation_folder().unwrap();
-        match coin {
-            "KMD" => {
-                path.push("komodo.conf");
+    pub fn chain(name: &str) -> Result<Self> {
+        let mut path = self::ConfigFile::get_komodo_installation_folder()?;
+        match name {
+            "VRSC" => {
+                path.push("VRSC");
+                path.push("VRSC.conf");
             }
             _ => {
-                path.push(&coin.to_ascii_uppercase());
-                path.push(format!("{}.conf", &coin.to_ascii_uppercase()));
+                path.push(&name.to_ascii_lowercase());
+                path.push(format!("{}.conf", &name.to_ascii_lowercase()));
             }
         }
 
         if !path.exists() {
-            return Err(Error::IOError(io::Error::from(ErrorKind::NotFound)));
+            return Err(Error::IOError(ErrorKind::NotFound.into()));
         }
 
         let contents = fs::read_to_string(path.to_str().unwrap())?;
@@ -66,21 +67,21 @@ impl ConfigFile {
             .map(|vec| (vec[0].to_string(), vec[1].to_string()))
             .collect::<HashMap<String, String>>();
 
-        let _rpc_user = map.get("rpcuser").ok_or(Error::InvalidConfigFile)?;
-        let _rpc_password = map.get("rpcpassword").ok_or(Error::InvalidConfigFile)?;
-        let _rpc_port = match coin {
-            // KMD doesn't put rpcport in conf file at install, but users could have modified it afterwards.
-            "KMD" => match map.get("rpcport") {
+        let rpc_user = map.get("rpcuser").ok_or(Error::InvalidConfigFile)?;
+        let rpc_password = map.get("rpcpassword").ok_or(Error::InvalidConfigFile)?;
+        let rpc_port = match name {
+            // VRSC doesn't put rpcport in conf file at install, but users could have modified it afterwards.
+            "VRSC" => match map.get("rpcport") {
                 Some(port) => port,
-                None => "7771",
+                None => "8232",
             },
             _ => map.get("rpcport").ok_or(Error::InvalidConfigFile)?,
         };
 
         Ok(ConfigFile {
-            rpcuser: _rpc_user.to_owned(),
-            rpcpassword: _rpc_password.to_owned(),
-            rpcport: _rpc_port.parse::<u16>()?,
+            rpcuser: rpc_user.to_owned(),
+            rpcpassword: rpc_password.to_owned(),
+            rpcport: rpc_port.parse::<u16>()?,
         })
     }
 }
