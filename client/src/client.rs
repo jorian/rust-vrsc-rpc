@@ -5,8 +5,8 @@ use std::iter::FromIterator;
 use std::path::PathBuf;
 use std::result;
 
-use crate::coin_config::{ConfigFile, Auth};
 use crate::bitcoin::BlockHash;
+use crate::coin_config::{Auth, ConfigFile};
 use crate::json::vrsc::util::address::AddressType;
 use crate::json::vrsc::util::amount::Amount;
 use crate::json::*;
@@ -142,6 +142,26 @@ impl Client {
             Auth::UserPass(url, rpcuser, rpcpassword) => Ok(Client {
                 client: jsonrpc::client::Client::new(url, Some(rpcuser), Some(rpcpassword)),
             }),
+        }
+    }
+}
+
+impl Default for Client {
+    /// Creates a default VerusClient based on parameters found in the VRSC.conf file in `$HOME/.komodo/VRSC/VRSC.conf`
+    /// Panics if
+    /// - $HOME/.komodo/VRSC/VRSC.conf` does not exist
+    /// - one of rpcport, rpcuser or rpcpassword is not found in VRSC.conf
+    fn default() -> Self {
+        if let Ok(config) = ConfigFile::new("VRSC") {
+            Client {
+                client: jsonrpc::client::Client::new(
+                    format!("http://127.0.0.1:{}", config.rpcport),
+                    Some(config.rpcuser),
+                    Some(config.rpcpassword),
+                ),
+            }
+        } else {
+            panic!("no valid Verus configuration found")
         }
     }
 }
