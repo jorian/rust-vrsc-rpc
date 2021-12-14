@@ -1,9 +1,9 @@
-use os_info::Type as OSType;
-use std::io::ErrorKind;
-use std::{fs, io, result};
 use crate::error::Error;
-use std::path::PathBuf;
+use os_info::Type as OSType;
 use std::collections::HashMap;
+use std::io::ErrorKind;
+use std::path::PathBuf;
+use std::{fs, io, result};
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -16,9 +16,9 @@ pub enum Auth {
 
 #[derive(Debug)]
 pub struct ConfigFile {
-    pub (crate) rpcuser: String,
-    pub (crate) rpcpassword: String,
-    pub (crate) rpcport: u16,
+    pub(crate) rpcuser: String,
+    pub(crate) rpcpassword: String,
+    pub(crate) rpcport: u16,
 }
 
 impl ConfigFile {

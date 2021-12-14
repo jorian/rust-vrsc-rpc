@@ -1,28 +1,38 @@
 # Client implementations
 
-- Accounts are not supported in Komodo and will not be implemented here.
+- Accounts are not supported in Verus and will not be implemented here.
+
+### Addressindex
+
+- [ ] getaddressbalance
+- [ ] getaddressdeltas
+- [ ] getaddressmempool
+- [ ] getaddresstxids
+- [ ] getaddressutxos
+- [ ] getsnapshot
 
 ### Blockchain
 
-- [x] getsnapshot ( "top" )
+<!-- - [x] getsnapshot ( "top" ) -->
 
-- [x] coinsupply <height>
+- [x] coinsupply < height >
 - [x] getbestblockhash
 - [x] getblock "hash|height" ( verbosity )
 - [x] getblockchaininfo
 - [x] getblockcount
+- [ ] getblockdeltas "blockhash"
 - [x] getblockhash index
 - [ ] getblockhashes timestamp
 - [x] getblockheader "hash" ( verbose )
 - [x] getchaintips
 - [x] getchaintxstats
 - [x] getdifficulty
-- [ ] getlastsegidstakes depth
+<!-- - [ ] getlastsegidstakes depth -->
 - [x] getmempoolinfo
 - [x] getrawmempool ( verbose )
 - [ ] getspentinfo
 - [x] gettxout "txid" n ( includemempool )
-- [x] gettxoutproof ["txid",...] ( blockhash )
+- [x] gettxoutproof [ "txid",... ] ( blockhash )
 - [x] gettxoutsetinfo
 - [ ] ~~kvsearch key~~
 - [ ] ~~kvupdate key "value" days passphrase~~
@@ -30,13 +40,65 @@
 - [x] notaries height timestamp
 - [x] verifychain ( checklevel numblocks )
 - [x] verifytxoutproof "proof"
+- [ ] z_gettreestate "hash|height"
 
-### Mining
+### Control
+
+- [ ] getinfo
+- [ ] help ( "command" )
+- [ ] stop
+
+### Crosschain
+
+- [ ] MoMoMdata symbol kmdheight ccid
+- [ ] assetchainproof needs a txid
+- [ ] calc_MoM height MoMdepth
+- [ ] getNotarisationsForBlock blockHash
+- [ ] height_MoM height
+- [ ] migrate_completeimporttransaction importTx
+- [ ] migrate_converttoexport rawTx dest_symbol export_amount
+- [ ] migrate_createimporttransaction burnTx payouts
+- [ ] scanNotarisationsDB blockHeight symbol [ blocksLimit=1440 ]
+
+### Disclosure
+
+z_getpaymentdisclosure "txid" "js_index" "output_index" ("message")
+z_validatepaymentdisclosure "paymentdisclosure"
+
+### Generating
 
 - [ ] generate numblocks
 - [ ] getgenerate
 - [ ] setgenerate generate ( genproclimit )
-- [ ] genminingCSV
+
+### Identity
+
+- [ ] getidentity "name@ || iid" (height) (txproof) (txproofheight)
+- [ ] listidentities (includecansign) (includewatchonly)
+- [ ] recoveridentity "jsonidentity" (returntx)
+- [ ] registeridentity "jsonidregistration" (returntx) feeoffer
+- [ ] registernamecommitment "name" "controladdress" ("referralidentity")
+- [ ] revokeidentity "nameorID" (returntx)
+- [ ] setidentitytimelock "id@" '{"unlockatblock":absoluteblockheight || "setunlockdelay":numberofblocksdelayafterunlock}' (returntx)
+- [ ] signfile "address or identity" "filepath/filename" "curentsig"
+- [ ] signmessage "address or identity" "message" "currentsig"
+- [ ] updateidentity "jsonidentity" (returntx)
+- [ ] verifyfile "address or identity" "signature" "filepath/filename" "checklatest"
+- [ ] verifyhash "address or identity" "signature" "hexhash" "checklatest"
+- [ ] verifymessage "address or identity" "signature" "message" "checklatest"
+
+### Marketplace
+
+- [ ] closeoffers ('["offer1_txid", "offer2_txid", ...]') (transparentorprivatefundsdestination) (privatefundsdestination)
+- [ ] getoffers "currencyorid" (iscurrency) (withtx)
+- [ ] listopenoffers (unexpired) (expired)'
+- [ ] makeoffer fromaddress '{"changeaddress":"transparentoriaddress", "expiryheight":blockheight, "offer":{"currency":"anycurrency", "amount":...} | {"identity":"idnameoriaddress",...}', "for":{"address":..., "currency":"anycurrency", "amount":...} | {"name":"identityforswap","parent":"parentid","primaryaddresses":["R-address(s)"],"minimumsignatures":1,...}}' (returntx) (feeamount)
+- [ ] takeoffer fromaddress '{"txid":"txid" | "tx":"hextx", "changeaddress":"transparentoriaddress", "deliver":"fullidnameoriaddresstodeliver" | {"currency":"currencynameorid","amount":n}, "accept":{"address":"addressorid","currency":"currencynameorid","amount"} | {identitydefinition}}' (returntx) (feeamount)
+
+### Mining
+
+<!-- - [ ] genminingCSV -->
+
 - [ ] getblocksubsidy height
 - [ ] getblocktemplate ( "jsonrequestobject" )
 - [ ] getlocalsolps
@@ -61,7 +123,7 @@
 - [ ] ping
 - [ ] setban "ip(/netmask)" "add|remove" (bantime) (absolute)
 
-### Transaction
+### Rawtransactions
 
 - [ ] createrawtransaction [{"txid":"id","vout":n},...] {"address":amount,...} ( locktime ) ( expiryheight )
 - [ ] decoderawtransaction "hexstring"
@@ -71,8 +133,10 @@
 - [ ] sendrawtransaction "hexstring" ( allowhighfees )
 - [ ] signrawtransaction "hexstring" ( [{"txid":"id","vout":n,"scriptPubKey":"hex","redeemScript":"hex"},...] ["privatekey1",...] sighashtype )
 
+### Util
+
 - [ ] createmultisig nrequired ["key",...]
-- [ ] decodeccopret scriptPubKey
+<!-- - [ ] decodeccopret scriptPubKey -->
 - [ ] estimatefee nblocks
 - [ ] estimatepriority nblocks
 - [ ] invalidateblock "hash"
@@ -81,27 +145,33 @@
 - [ ] jumblr_resume
 - [ ] jumblr_secret "secretaddress"
 - [ ] reconsiderblock "hash"
-- [ ] txnotarizedconfirmed txid
+<!-- - [ ] txnotarizedconfirmed txid -->
 - [ ] validateaddress "komodoaddress"
-- [ ] verifymessage "komodoaddress" "signature" "message"
+<!-- - [ ] verifymessage "komodoaddress" "signature" "message" -->
 - [ ] z_validateaddress "zaddr"
+
+### VDXF
+
+- [ ] getvdxfid "vdxfuri"
 
 ### Wallet
 
 - [x] addmultisigaddress nrequired ["key",...] ( "account" )
 - [x] backupwallet "destination"
-- [x] cleanwallettransactions "txid"
+<!-- - [x] cleanwallettransactions "txid" -->
 - [x] convertpassphrase "agamapassphrase"
 - [x] dumpprivkey "t-addr"
 - [ ] dumpwallet "filename"
-- [x] ~~getaccount "KMD_address"~~
+- [ ] encryptwallet "passphrase"
+- [x] ~~getaccount "VRSC_address"~~
 - [x] ~~getaccountaddress "account"~~
 - [x] ~~getaddressesbyaccount "account"~~
 - [x] getbalance ( ~~"account"~~ minconf includeWatchonly )
+- [ ] getcurrencybalance "address" ( minconf friendlynames)
 - [x] getnewaddress ~~( "account" )~~
 - [x] getrawchangeaddress
 - [x] ~~getreceivedbyaccount "account" ( minconf )~~
-- [x] getreceivedbyaddress "KMD_address" ( minconf )
+- [x] getreceivedbyaddress "VRSC_address" ( minconf )
 - [x] gettransaction "txid" ( includeWatchonly )
 - [x] getunconfirmedbalance
 - [x] getwalletinfo
@@ -119,19 +189,19 @@
 - [x] listunspent ( minconf maxconf ["address",...] )
 - [x] lockunspent unlock [{"txid":"txid","vout":n},...]
 - [ ] ~~move "fromaccount" "toaccount" amount ( minconf "comment" )~~
-- [x] opreturn_burn burn_amount hexstring ( txfee )
+<!-- - [x] opreturn_burn burn_amount hexstring ( txfee ) -->
 - [x] resendwallettransactions
 - [ ] ~~sendfrom "fromaccount" "toKMDaddress" amount ( minconf "comment" "comment-to" )~~
 - [x] sendmany ~~"fromaccount"~~ {"address":amount,...} ( minconf "comment" ["address",...] )
 - [x] sendtoaddress "KMD_address" amount ( "comment" "comment-to" subtractfeefromamount )
 - [x] ~~setaccount "KMD_address" "account"~~
-- [ ] ~~setpubkey~~ invalid response
-- [ ] setstakingsplit
+  <!-- - [ ] ~~setpubkey~~ invalid response -->
+  <!-- - [ ] setstakingsplit -->
 - [x] settxfee amount
-- [x] signmessage "t-addr" "message"
-- [ ] walletlock
-- [ ] walletpassphrase "passphrase" timeout
-- [ ] walletpassphrasechange "oldpassphrase" "newpassphrase"
+  <!-- - [x] signmessage "t-addr" "message" -->
+  <!-- - [ ] walletlock -->
+  <!-- - [ ] walletpassphrase "passphrase" timeout -->
+  <!-- - [ ] walletpassphrasechange "oldpassphrase" "newpassphrase" -->
 - [ ] z_exportkey "zaddr"
 - [ ] z_exportviewingkey "zaddr"
 - [ ] z_exportwallet "filename"
