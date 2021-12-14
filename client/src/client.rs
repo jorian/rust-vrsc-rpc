@@ -127,10 +127,10 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(coin: &str, auth: Auth) -> Result<Self> {
+    pub fn chain(name: &str, auth: Auth) -> Result<Self> {
         match auth {
             Auth::ConfigFile => {
-                let config = ConfigFile::new(coin)?;
+                let config = ConfigFile::new(name)?;
                 Ok(Client {
                     client: jsonrpc::client::Client::new(
                         format!("http://127.0.0.1:{}", config.rpcport),
@@ -715,26 +715,20 @@ mod tests {
 
     #[test]
     fn get_config() {
-        let config_file = ConfigFile::new("KMD").unwrap();
+        let config_file = ConfigFile::new("VRSC").unwrap();
         println!("{:#?}", &config_file);
 
-        let client = Client::new("KMD", Auth::ConfigFile);
+        let client = Client::chain("VRSC", Auth::ConfigFile);
         assert!(client.is_ok());
 
-        let client = Client::new(
-            "KMD",
+        let client = Client::chain(
+            "VRSC",
             Auth::UserPass(
-                "http://127.0.0.1:7771".to_string(),
-                "123kjh12jkl3h1kl23jh".to_string(),
-                "213kj4h2kl3j4h23kl4jh".to_string(),
+                "http://127.0.0.1:27777".to_string(),
+                "1kj23k1l23".to_string(),
+                "5jkhkjhl5".to_string(),
             ),
         );
         assert!(client.is_ok());
-
-        let config_file = ConfigFile::new("ILN");
-        println!("{:#?}", &config_file);
-
-        let config_file = ConfigFile::new("PIRATE");
-        println!("{:#?}", &config_file);
     }
 }

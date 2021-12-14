@@ -3,7 +3,7 @@ use os_info::Type as OSType;
 use std::collections::HashMap;
 use std::io::ErrorKind;
 use std::path::PathBuf;
-use std::{fs, io, result};
+use std::{fs, result};
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -40,7 +40,7 @@ impl ConfigFile {
         }
     }
 
-    pub fn chain(name: &str) -> Result<Self> {
+    pub fn new(name: &str) -> Result<Self> {
         let mut path = self::ConfigFile::get_komodo_installation_folder()?;
         match name {
             "VRSC" => {
