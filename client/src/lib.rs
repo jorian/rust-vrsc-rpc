@@ -1,5 +1,6 @@
 #![crate_name = "vrsc_rpc"]
 #![crate_type = "rlib"]
+#![feature(io_error_more)]
 
 #[allow(unused)]
 #[macro_use] // `macro_use` is needed for v1.24.0 compilation.

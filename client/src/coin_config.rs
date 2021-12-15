@@ -40,16 +40,43 @@ impl ConfigFile {
         }
     }
 
-    pub fn new(name: &str) -> Result<Self> {
-        let mut path = self::ConfigFile::get_komodo_installation_folder()?;
-        match name {
-            "VRSC" => {
-                path.push("VRSC");
-                path.push("VRSC.conf");
+    fn get_verustest_installation_folder() -> Result<PathBuf> {
+        if let Some(mut path) = dirs::home_dir() {
+            match os_info::get().os_type() {
+                OSType::Ubuntu | OSType::Linux => path.push(".verustest"),
+                OSType::Macos | OSType::Windows => path.push("VerusTest"),
+                _ => return Err(Error::IOError(ErrorKind::Unsupported.into())),
             }
-            _ => {
-                path.push(&name.to_ascii_lowercase());
-                path.push(format!("{}.conf", &name.to_ascii_lowercase()));
+
+            path.push("pbaas");
+
+            if !path.is_dir() {
+                return Err(Error::IOError(ErrorKind::NotADirectory.into()));
+            }
+
+            Ok(path)
+        } else {
+            return Err(Error::IOError(ErrorKind::NotFound.into()));
+        }
+    }
+
+    pub fn new(name: &str) -> Result<Self> {
+        let mut path;
+        match name {
+            v if v.to_ascii_uppercase() == "VRSC" => {
+                path = self::ConfigFile::get_komodo_installation_folder()?;
+                path.push(v);
+                path.push(stringify!("{}.conf", v));
+            }
+            vt if vt.to_ascii_lowercase() == "vrsctest" => {
+                path = self::ConfigFile::get_komodo_installation_folder()?;
+                path.push(vt);
+                path.push(stringify!("{}.conf", vt));
+            }
+            _x => {
+                path = self::ConfigFile::get_verustest_installation_folder()?;
+                path.push(_x.to_ascii_lowercase());
+                path.push(format!("{}.conf", _x.to_ascii_lowercase()));
             }
         }
 
