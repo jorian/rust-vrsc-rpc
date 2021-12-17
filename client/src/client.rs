@@ -7,6 +7,7 @@ use std::result;
 
 use crate::bitcoin::BlockHash;
 use crate::chain_config::{Auth, ConfigFile};
+use crate::json::identity::Identity;
 use crate::json::vrsc::util::address::AddressType;
 use crate::json::vrsc::util::amount::Amount;
 use crate::json::*;
@@ -196,6 +197,51 @@ pub trait RpcApi: Sized {
         cmd: &str,
         args: &[serde_json::Value],
     ) -> Result<T>;
+
+    // Identity
+
+    /// Simplest way of getting an identity
+    /// TODO add i-address, height, txproof, txproofheight
+    fn get_identity(&self, name: &str) -> Result<Identity> {
+        self.call("getidentity", &[name.into()])
+    }
+
+    fn listidentities(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn recoveridentity(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn registeridentity(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn registernamecommitment(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn revokeidentity(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn setidentitytimelock(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn signfile(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn signmessage(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn updateidentity(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn verifyfile(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn verifyhash(&self) -> Result<()> {
+        unimplemented!()
+    }
+    fn verifymessage(&self) -> Result<()> {
+        unimplemented!()
+    }
 
     fn coin_supply(&self, height: &str) -> Result<CoinSupply> {
         // TODO why is height a str?

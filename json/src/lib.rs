@@ -9,6 +9,8 @@ pub extern crate vrsc;
 extern crate serde;
 extern crate serde_json;
 
+pub mod identity;
+
 use crate::vrsc::SignedAmount;
 use bitcoin::{BlockHash, Script, Txid};
 use serde::*;
