@@ -15,9 +15,9 @@ pub use vrsc_rpc_json as json;
 // pub use crate::client::coin_config::CoinConfig;
 
 mod client;
-mod coin_config;
+mod chain_config;
 mod error;
 
 pub use client::*;
-pub use coin_config::Auth;
+pub use chain_config::Auth;
 pub use error::Error;

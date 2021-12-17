@@ -10,18 +10,12 @@ extern crate serde;
 extern crate serde_json;
 
 use crate::vrsc::SignedAmount;
-use bitcoin::{BlockHash, PubkeyHash, Script, ScriptHash, Txid};
+use bitcoin::{BlockHash, Script, Txid};
+use serde::*;
+use std::{collections::HashMap, fmt::Display, num::ParseIntError, str, str::FromStr};
 use vrsc::util::amount::Amount;
 use vrsc::Address;
 use vrsc::{PrivateKey, PublicKey};
-use serde::*;
-use std::{
-    collections::HashMap,
-    fmt::Display,
-    num::ParseIntError,
-    str::FromStr,
-    str
-};
 
 #[derive(Clone, Debug)]
 pub enum PubkeyOrAddress<'a> {

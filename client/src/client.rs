@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::result;
 
 use crate::bitcoin::BlockHash;
-use crate::coin_config::{Auth, ConfigFile};
+use crate::chain_config::{Auth, ConfigFile};
 use crate::json::vrsc::util::address::AddressType;
 use crate::json::vrsc::util::amount::Amount;
 use crate::json::*;
