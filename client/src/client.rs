@@ -179,7 +179,7 @@ impl RpcApi for Client {
 
         let resp = self.client.send_request(&req).map_err(Error::from);
 
-        // dbg!(&resp);
+        dbg!(&resp);
 
         Ok(resp?.into_result()?)
     }
@@ -206,9 +206,10 @@ pub trait RpcApi: Sized {
         self.call("getidentity", &[name.into()])
     }
 
-    fn listidentities(&self) -> Result<()> {
-        unimplemented!()
+    fn list_identities(&self) -> Result<Vec<Identity>> {
+        self.call("listidentities", &[])
     }
+
     fn recoveridentity(&self) -> Result<()> {
         unimplemented!()
     }
