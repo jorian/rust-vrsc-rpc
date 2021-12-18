@@ -1,5 +1,11 @@
 # Client implementations
 
+The client side of making RPC requests to the Verus daemon.
+
+This crate handles the definition of the Remote-Prodecure-Calls as is defined by the Verus Daemon. It tries to be a stateless wrapper of the RPCs.
+
+## Notes
+
 - Accounts are not supported in Verus and will not be implemented here.
 
 ### Addressindex
