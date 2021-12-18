@@ -73,11 +73,11 @@ z_validatepaymentdisclosure "paymentdisclosure"
 
 ### Identity
 
-- [ ] getidentity "name@ || iid" (height) (txproof) (txproofheight)
-- [ ] listidentities (includecansign) (includewatchonly)
+- [x] getidentity "name@ || iid" (height) (txproof) (txproofheight)
+- [x] listidentities (includecansign) (includewatchonly)
 - [ ] recoveridentity "jsonidentity" (returntx)
 - [ ] registeridentity "jsonidregistration" (returntx) feeoffer
-- [ ] registernamecommitment "name" "controladdress" ("referralidentity")
+- [x] registernamecommitment "name" "controladdress" ("referralidentity")
 - [ ] revokeidentity "nameorID" (returntx)
 - [ ] setidentitytimelock "id@" '{"unlockatblock":absoluteblockheight || "setunlockdelay":numberofblocksdelayafterunlock}' (returntx)
 - [ ] signfile "address or identity" "filepath/filename" "curentsig"

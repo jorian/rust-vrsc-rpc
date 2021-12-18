@@ -1,5 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
+use bitcoin::Txid;
+use serde::de::{Deserialize, Deserializer};
 use vrsc::Address;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -28,4 +30,33 @@ pub struct InnerIdentity {
     pub recoveryauthority: Address,
     pub privateaddress: String,
     pub timelock: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NameCommitment {
+    txid: Txid,
+    namereservation: NameReservation,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NameReservation {
+    name: String,
+    salt: String,
+    // if no refferal was given, the response is an empty string.
+    #[serde(deserialize_with = "object_empty_as_none")]
+    referral: Option<Address>,
+    parent: String,
+    nameid: Address,
+}
+
+pub fn object_empty_as_none<'de, D>(deserializer: D) -> Result<Option<Address>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    if s.is_empty() {
+        return Ok(None);
+    } else {
+        return Ok(Some(Address::from_str(&s).unwrap()));
+    }
 }

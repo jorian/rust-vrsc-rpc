@@ -14,10 +14,10 @@ pub use json::bitcoin;
 pub use vrsc_rpc_json as json;
 // pub use crate::client::coin_config::CoinConfig;
 
-mod client;
 mod chain_config;
+mod client;
 mod error;
 
-pub use client::*;
 pub use chain_config::Auth;
+pub use client::*;
 pub use error::Error;

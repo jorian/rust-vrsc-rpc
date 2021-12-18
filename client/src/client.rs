@@ -7,7 +7,7 @@ use std::result;
 
 use crate::bitcoin::BlockHash;
 use crate::chain_config::{Auth, ConfigFile};
-use crate::json::identity::Identity;
+use crate::json::identity::*;
 use crate::json::vrsc::util::address::AddressType;
 use crate::json::vrsc::util::amount::Amount;
 use crate::json::*;
@@ -175,7 +175,7 @@ impl RpcApi for Client {
     ) -> Result<T> {
         let req = self.client.build_request(&cmd, &args);
 
-        // dbg!(&req);
+        dbg!(&req);
 
         let resp = self.client.send_request(&req).map_err(Error::from);
 
@@ -216,8 +216,30 @@ pub trait RpcApi: Sized {
     fn registeridentity(&self) -> Result<()> {
         unimplemented!()
     }
-    fn registernamecommitment(&self) -> Result<()> {
-        unimplemented!()
+
+    // a referral can either be an identity name (identity@) or an identity address (address that starts with i)
+    // TODO
+    fn registernamecommitment(
+        &self,
+        name: &str,
+        controll_address: Address,
+        referral: Option<&str>,
+    ) -> Result<NameCommitment> {
+        if let Some(referral) = referral {
+            self.call(
+                "registernamecommitment",
+                &[
+                    name.into(),
+                    controll_address.to_string().into(),
+                    referral.into(),
+                ],
+            )
+        } else {
+            self.call(
+                "registernamecommitment",
+                &[name.into(), controll_address.to_string().into()],
+            )
+        }
     }
     fn revokeidentity(&self) -> Result<()> {
         unimplemented!()
