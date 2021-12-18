@@ -1,23 +1,21 @@
 #![crate_name = "vrsc_rpc_json"]
 #![crate_type = "rlib"]
 
-pub extern crate bitcoin;
-pub extern crate vrsc;
-
 #[allow(unused)]
 #[macro_use] // `macro_use` is needed for v1.24.0 compilation.
 extern crate serde;
 extern crate serde_json;
 
+pub extern crate bitcoin;
+pub extern crate vrsc;
+
 pub mod identity;
 
-use crate::vrsc::SignedAmount;
+use crate::vrsc::{Address, Amount, PrivateKey, PublicKey, SignedAmount};
+
 use bitcoin::{BlockHash, Script, Txid};
 use serde::*;
 use std::{collections::HashMap, fmt::Display, num::ParseIntError, str, str::FromStr};
-use vrsc::util::amount::Amount;
-use vrsc::Address;
-use vrsc::{PrivateKey, PublicKey};
 
 #[derive(Clone, Debug)]
 pub enum PubkeyOrAddress<'a> {

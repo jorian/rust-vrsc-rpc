@@ -1,20 +1,17 @@
+use crate::bitcoin;
+use crate::bitcoin::BlockHash;
+use crate::chain_config::{Auth, ConfigFile};
 use crate::error::Error;
+use crate::json::identity::*;
+use crate::json::*;
+
 use jsonrpc;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
 use std::result;
-
-use crate::bitcoin::BlockHash;
-use crate::chain_config::{Auth, ConfigFile};
-use crate::json::identity::*;
-use crate::json::vrsc::util::address::AddressType;
-use crate::json::vrsc::util::amount::Amount;
-use crate::json::*;
-use crate::{bitcoin, json};
-
-use vrsc_rpc_json::vrsc::{Address, PrivateKey};
-use vrsc_rpc_json::GetTransactionResult;
+use vrsc::util::address::AddressType;
+use vrsc::*;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -275,7 +272,7 @@ pub trait RpcApi: Sized {
     }
 
     /// Get a block, based on its hash (later on: and height todo).
-    fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<json::Block> {
+    fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<Block> {
         let val = serde_json::to_value(hash)?;
 
         self.call("getblock", &[val])
@@ -408,7 +405,7 @@ pub trait RpcApi: Sized {
 
     fn createrawtransaction(
         &self,
-        inputs: &[json::CreateRawTransactionInput],
+        inputs: &[CreateRawTransactionInput],
         outputs: &HashMap<String, Amount>,
         locktime: Option<i64>,
         expiryheight: Option<u64>,
@@ -452,11 +449,11 @@ pub trait RpcApi: Sized {
     fn get_raw_transaction_verbose(
         &self,
         txid: &bitcoin::Txid,
-    ) -> Result<json::GetRawTransactionResultVerbose> {
+    ) -> Result<GetRawTransactionResultVerbose> {
         self.call("getrawtransaction", &[into_json(txid)?, 1.into()])
     }
 
-    fn get_raw_transaction(&self, txid: &bitcoin::Txid) -> Result<json::GetRawTransactionResult> {
+    fn get_raw_transaction(&self, txid: &bitcoin::Txid) -> Result<GetRawTransactionResult> {
         self.call("getrawtransaction", &[into_json(txid)?, 0.into()])
     }
 
@@ -466,11 +463,7 @@ pub trait RpcApi: Sized {
 
     // Label is deprecated and thus not used in the method call.
     // Todo keys are either an address or a pubkey.
-    fn add_multi_sig_address(
-        &self,
-        n_required: u8,
-        keys: &[json::PubkeyOrAddress],
-    ) -> Result<String> {
+    fn add_multi_sig_address(&self, n_required: u8, keys: &[PubkeyOrAddress]) -> Result<String> {
         // maximum of 15 in a msig.
         if n_required > 15 {
             return Err(Error::VRSCError(String::from(
@@ -486,11 +479,11 @@ pub trait RpcApi: Sized {
             .map(|path: String| PathBuf::from(&path))
     }
 
-    fn clean_wallet_transactions(&self) -> Result<json::CleanedWalletTransactions> {
+    fn clean_wallet_transactions(&self) -> Result<CleanedWalletTransactions> {
         self.call("cleanwallettransactions", &[])
     }
 
-    fn convert_passphrase(&self, passphrase: &str) -> Result<json::ConvertedPassphrase> {
+    fn convert_passphrase(&self, passphrase: &str) -> Result<ConvertedPassphrase> {
         self.call("convertpassphrase", &[passphrase.into()])
     }
 
@@ -756,7 +749,7 @@ pub trait RpcApi: Sized {
         self.call("getunconfirmedbalance", &[])
     }
 
-    fn get_wallet_info(&self) -> Result<json::WalletInfo> {
+    fn get_wallet_info(&self) -> Result<WalletInfo> {
         self.call("getwalletinfo", &[])
     }
 
