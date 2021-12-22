@@ -203,6 +203,8 @@ pub trait RpcApi: Sized {
         self.call("getidentity", &[name.into()])
     }
 
+    // TODO: RPC returns nothing on empty list
+    // see: https://github.com/VerusCoin/VerusCoin/issues/381
     fn list_identities(&self) -> Result<Vec<Identity>> {
         self.call("listidentities", &[])
     }
@@ -270,6 +272,37 @@ pub trait RpcApi: Sized {
     fn get_best_blockhash(&self) -> Result<bitcoin::BlockHash> {
         self.call("getbestblockhash", &[])
     }
+
+    // Marketplace
+    fn closeoffers(&self) -> Result<()> {
+        unimplemented!()
+    } // ('["offer1_txid", "offer2_txid", ...]') (transparentorprivatefundsdestination) (privatefundsdestination)
+
+    fn get_offers(
+        &self,
+        currency_or_id: &str,
+        is_currency: bool,
+        with_raw_tx: bool,
+    ) -> Result<HashMap<String, Vec<MarketplaceOffer>>> {
+        self.call(
+            "getoffers",
+            &[
+                currency_or_id.into(),
+                is_currency.into(),
+                with_raw_tx.into(),
+            ],
+        )
+    }
+
+    fn listopenoffers(&self) -> Result<()> {
+        unimplemented!()
+    } // (unexpired) (expired)'
+    fn makeoffer(&self) -> Result<()> {
+        unimplemented!()
+    } // fromaddress '{"changeaddress":"transparentoriaddress", "expiryheight":blockheight, "offer":{"currency":"anycurrency", "amount":...} | {"identity":"idnameoriaddress",...}', "for":{"address":..., "currency":"anycurrency", "amount":...} | {"name":"identityforswap","parent":"parentid","primaryaddresses":["R-address(s)"],"minimumsignatures":1,...}}' (returntx) (feeamount)
+    fn takeoffer(&self) -> Result<()> {
+        unimplemented!()
+    } // fromaddress '{"txid":"txid" | "tx":"hextx", "changeaddress":"transparentoriaddress", "deliver":"fullidnameoriaddresstodeliver" | {"currency":"currencynameorid","amount":n}, "accept":{"address":"addressorid","currency":"currencynameorid","amount"} | {identitydefinition}}' (returntx) (feeamount)
 
     /// Get a block, based on its hash (later on: and height todo).
     fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<Block> {

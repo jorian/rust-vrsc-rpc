@@ -60,3 +60,33 @@ where
         return Ok(Some(Address::from_str(&s).unwrap()));
     }
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MarketplaceOffer {
+    identityid: Address,
+    price: f64,
+    offer: Offer,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Offer {
+    accept: OfferVariant,
+    offer: OfferVariant,
+    blockexpiry: u64,
+    txid: Txid,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum OfferVariant {
+    CurrencyOffer(HashMap<String, f64>),
+    IdentityOffer(IdentityOffer),
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct IdentityOffer {
+    name: String,
+    identityid: Address,
+    systemid: Address,
+    original: u8,
+}
