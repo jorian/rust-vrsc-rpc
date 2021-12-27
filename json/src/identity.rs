@@ -57,23 +57,25 @@ where
     if s.is_empty() {
         return Ok(None);
     } else {
-        return Ok(Some(Address::from_str(&s).unwrap()));
+        return Ok(Some(
+            Address::from_str(&s).expect("a valid Verus i, b, or R address"),
+        ));
     }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MarketplaceOffer {
-    identityid: Address,
-    price: f64,
-    offer: Offer,
+    pub identityid: Address,
+    pub price: f64,
+    pub offer: Offer,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Offer {
-    accept: OfferVariant,
-    offer: OfferVariant,
-    blockexpiry: u64,
-    txid: Txid,
+    pub accept: OfferVariant,
+    pub offer: OfferVariant,
+    pub blockexpiry: u64,
+    pub txid: Txid,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -85,8 +87,8 @@ pub enum OfferVariant {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IdentityOffer {
-    name: String,
-    identityid: Address,
-    systemid: Address,
-    original: u8,
+    pub name: String,
+    pub identityid: Address,
+    pub systemid: Address,
+    pub original: u8,
 }
