@@ -67,7 +67,6 @@ impl ConfigFile {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
                 path.push(v);
                 path.push(&format!("{}.conf", v));
-                dbg!(&path);
             }
             vt if vt.to_ascii_lowercase() == "vrsctest" => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;

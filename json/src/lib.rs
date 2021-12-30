@@ -657,7 +657,6 @@ impl TokelData {
 
         if let Some(pos) = decoded.iter().position(|x| *x == 1) {
             token_id = *decoded.get(pos + 1).unwrap();
-            dbg!(token_id);
         } else {
             panic!("code field id missing");
         }
@@ -666,10 +665,8 @@ impl TokelData {
 
         if let Some(pos) = decoded.iter().position(|x| *x == 2) {
             let length = *decoded.get(pos + 1).unwrap();
-            dbg!(length);
             let url_bytes = &decoded[pos + 2..=length as usize + 1];
             token_url = str::from_utf8(url_bytes).unwrap();
-            dbg!(token_url);
         } else {
             panic!("code field url missing");
         }
@@ -679,7 +676,6 @@ impl TokelData {
         if let Some(pos) = decoded.iter().position(|x| *x == 3) {
             let royalty = *decoded.get(pos + 1).unwrap();
             token_royalty_percentage = royalty as f32 / 1000.0;
-            dbg!(token_royalty_percentage);
         } else {
             panic!("code field royalty_percentage missing");
         }
@@ -691,10 +687,8 @@ impl TokelData {
         // 02 02 ab cd ef
         if let Some(pos) = decoded.iter().position(|x| *x == 4) {
             let length = *decoded.get(pos + 1).unwrap();
-            dbg!(length);
             if length > 0 {
                 let arbitrary_data_bytes = &decoded[pos + 2..=pos + length as usize + 1];
-                dbg!(&arbitrary_data_bytes);
 
                 if let Ok(valid_string) = str::from_utf8(arbitrary_data_bytes) {
                     token_arbitrary_data_field = Some(String::from(valid_string))
@@ -703,7 +697,6 @@ impl TokelData {
                     // todo what if the arbitrary data field is not utf8?
                     token_arbitrary_data_field = None
                 }
-                dbg!(&token_arbitrary_data_field);
             } else {
                 token_arbitrary_data_field = None;
             }

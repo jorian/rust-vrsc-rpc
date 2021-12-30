@@ -3,7 +3,7 @@ name = "vrsc-rpc"
 description = "A wrapper for Verus RPCs"
 version = "0.0.1"
 authors = ["jorian"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,3 +16,4 @@ os_info = "3.0"
 dirs = "4.0"
 serde = "1.0.115"
 serde_json = "1.0.57"
+tracing = "0.1.26"

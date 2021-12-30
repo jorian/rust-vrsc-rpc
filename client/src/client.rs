@@ -4,6 +4,7 @@ use crate::chain_config::{Auth, ConfigFile};
 use crate::error::Error;
 use crate::json::identity::*;
 use crate::json::*;
+use tracing::*;
 
 use jsonrpc;
 use std::collections::HashMap;
@@ -172,11 +173,11 @@ impl RpcApi for Client {
     ) -> Result<T> {
         let req = self.client.build_request(&cmd, &args);
 
-        dbg!(&req);
+        debug!("{:#?}", &req);
 
         let resp = self.client.send_request(&req).map_err(Error::from);
 
-        dbg!(&resp);
+        debug!("{:#?}", &resp);
 
         Ok(resp?.into_result()?)
     }
