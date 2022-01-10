@@ -23,21 +23,34 @@ pub struct ConfigFile {
 
 impl ConfigFile {
     fn get_komodo_installation_folder() -> Result<PathBuf> {
-        if let Some(mut path) = dirs::home_dir() {
-            match os_info::get().os_type() {
-                OSType::Ubuntu | OSType::Linux => path.push(".komodo"),
-                OSType::Macos | OSType::Windows => path.push("Komodo"),
-                _ => return Err(Error::IOError(ErrorKind::Other.into())),
+        let mut full_path = PathBuf::new();
+        match os_info::get().os_type() {
+            OSType::Ubuntu | OSType::Linux => {
+                if let Some(path) = dirs::home_dir() {
+                    full_path.push(path);
+                    full_path.push(".komodo");
+                } else {
+                    return Err(Error::IOError(ErrorKind::NotFound.into()));
+                }
             }
-
-            if !path.is_dir() {
-                return Err(Error::IOError(ErrorKind::NotFound.into()));
+            OSType::Macos | OSType::Windows => {
+                if let Some(path) = dirs::data_local_dir() {
+                    full_path.push(path);
+                    full_path.push("Komodo") 
+                } else {
+                    return Err(Error::IOError(ErrorKind::NotFound.into()));
+                }
             }
+            _ => return Err(Error::IOError(ErrorKind::Other.into())),
+        }
+        
+        dbg!(&full_path);
 
-            Ok(path)
-        } else {
+        if !full_path.is_dir() {
             return Err(Error::IOError(ErrorKind::NotFound.into()));
         }
+
+        Ok(full_path)
     }
 
     fn get_verustest_installation_folder() -> Result<PathBuf> {
@@ -70,7 +83,7 @@ impl ConfigFile {
             }
             vt if vt.to_ascii_lowercase() == "vrsctest" => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push(vt);
+                path.push(vt.to_ascii_lowercase());
                 path.push(&format!("{}.conf", vt));
             }
             _x => {
