@@ -58,7 +58,8 @@ pub struct AddressUtxos {
     pub addresses: Option<Vec<Address>>,
     pub address: Address,
     pub txid: Txid,
-    pub outputIndex: u16,
+    #[serde(rename = "outputIndex")]
+    pub output_index: u16,
     pub script: String,
     pub satoshis: u64,
     pub height: u64,
@@ -385,16 +386,19 @@ pub struct GetRawTransactionVinScriptSig {
 pub struct GetRawTransactionVout {
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub value: Amount,
-    #[serde(with = "vrsc::util::amount::serde::as_sat")]
-    pub valueSat: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_sat", rename = "valueSat")]
+    pub value_sat: Amount,
     // #[serde(with = "vrsc::util::amount::serde::as_kmd::opt")]
     // pub interest: Option<Amount>,
     pub n: u32,
     #[serde(rename = "scriptPubKey")]
     pub script_pubkey: GetRawTransactionVoutScriptPubKey,
-    pub spentTxId: Option<Txid>,
-    pub spentIndex: Option<u32>,
-    pub spentHeight: Option<u64>,
+    #[serde(rename = "spentTxId")]
+    pub spent_tx_id: Option<Txid>,
+    #[serde(rename = "spentIndex")]
+    pub spent_index: Option<u32>,
+    #[serde(rename = "spentHeight")]
+    pub spent_height: Option<u64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

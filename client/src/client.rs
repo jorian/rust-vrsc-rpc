@@ -7,7 +7,6 @@ use crate::json::*;
 use tracing::*;
 
 use jsonrpc;
-use serde_json::value::RawValue;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
