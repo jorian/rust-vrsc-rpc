@@ -28,7 +28,7 @@ pub struct InnerIdentity {
     pub contentmap: HashMap<String, String>,
     pub revocationauthority: Address,
     pub recoveryauthority: Address,
-    pub privateaddress: String,
+    pub privateaddress: Option<String>,
     pub timelock: u64,
 }
 

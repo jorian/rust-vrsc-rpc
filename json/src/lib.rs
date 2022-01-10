@@ -33,6 +33,38 @@ impl<'a> serde::Serialize for PubkeyOrAddress<'a> {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MiningInfo {
+    pub blocks: u64,
+    pub currentblocksize: u32,
+    pub currentblocktx: u16,
+    pub averageblockfees: f64,
+    pub difficulty: f64,
+    pub stakingsupply: f64,
+    pub errors: String,
+    pub genproclimit: u16,
+    pub localhashps: f64,
+    pub networkhashps: f64,
+    pub pooledtx: u16,
+    pub testnet: bool,
+    pub chain: String,
+    pub generate: bool,
+    pub staking: bool,
+    pub numthreads: u16,
+    pub mergemining: u16,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AddressUtxos {
+    pub addresses: Option<Vec<Address>>,
+    pub address: Address,
+    pub txid: Txid,
+    pub outputIndex: u16,
+    pub script: String,
+    pub satoshis: u64,
+    pub height: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CoinSupply {
     pub result: String,
     pub coin: String,
@@ -61,14 +93,23 @@ pub struct CoinSupply {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Block {
-    pub last_notarized_height: u32,
+    // pub last_notarized_height: u32,
     pub hash: bitcoin::BlockHash,
+    #[serde(rename = "validationtype")]
+    pub validation_type: ValidationType, //todo make this an Enum
+    pub postarget: Option<String>,
+    pub poshashbh: Option<String>,
+    pub poshashtx: Option<String>,
+    pub possourcetxid: Option<Txid>,
+    pub possourcevoutnum: Option<u32>,
+    pub posrewarddest: Option<Address>,
+    pub postxddest: Option<Address>,
     pub confirmations: u32,
-    #[serde(rename = "rawconfirmations")]
-    pub raw_confirmations: u32,
+    // #[serde(rename = "rawconfirmations")]
+    // pub raw_confirmations: u32,
     pub size: u32,
     pub height: u32,
-    pub version: u16,
+    pub version: u32,
     #[serde(rename = "merkleroot")]
     pub merkle_root: bitcoin::TxMerkleNode,
     #[serde(rename = "segid")]
@@ -83,6 +124,8 @@ pub struct Block {
     pub difficulty: f64,
     #[serde(rename = "chainwork")]
     pub chain_work: String,
+    #[serde(rename = "chainstake")]
+    pub chain_stake: String,
     pub anchor: String,
     #[serde(rename = "blocktype")]
     pub block_type: String,
@@ -92,6 +135,27 @@ pub struct Block {
     pub previous_blockhash: Option<bitcoin::BlockHash>,
     #[serde(rename = "nextblockhash")]
     pub next_blockhash: Option<bitcoin::BlockHash>,
+    pub proofroot: ProofRoot,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub enum ValidationType {
+    #[serde(rename = "stake")]
+    Stake,
+    #[serde(rename = "work")]
+    Work,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ProofRoot {
+    pub version: u32,
+    #[serde(rename = "type")]
+    pub proof_type: u32,
+    pub systemid: Address,
+    pub height: u64,
+    pub stateroot: String,
+    pub blockhash: BlockHash,
+    pub power: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -105,7 +169,7 @@ pub struct ValuePool {
     #[serde(rename = "valueDelta")]
     pub value_delta: Option<f64>,
     #[serde(rename = "valueDeltaZat")]
-    pub value_delta_sat: Option<u64>,
+    pub value_delta_sat: Option<i64>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -321,11 +385,16 @@ pub struct GetRawTransactionVinScriptSig {
 pub struct GetRawTransactionVout {
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub value: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_sat")]
+    pub valueSat: Amount,
     // #[serde(with = "vrsc::util::amount::serde::as_kmd::opt")]
     // pub interest: Option<Amount>,
     pub n: u32,
     #[serde(rename = "scriptPubKey")]
     pub script_pubkey: GetRawTransactionVoutScriptPubKey,
+    pub spentTxId: Option<Txid>,
+    pub spentIndex: Option<u32>,
+    pub spentHeight: Option<u64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -377,13 +446,18 @@ pub struct OpReturnBurnResult {
 pub struct BlockchainInfo {
     // Can be one of main, test or regtest
     pub chain: String,
+    pub name: String,
+    pub chainid: Address,
     pub blocks: u32,
-    pub synced: bool,
+    // pub synced: bool,
     pub headers: u32,
     pub bestblockhash: bitcoin::BlockHash,
     pub difficulty: f64,
     pub verificationprogress: f64,
     pub chainwork: String,
+    pub chainstake: String,
+    pub pruned: bool,
+    pub size_on_disk: u64,
     pub commitments: u64,
     #[serde(rename = "valuePools")]
     pub value_pools: Vec<ValuePool>,

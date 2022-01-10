@@ -183,6 +183,11 @@ impl RpcApi for Client {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct AddressList {
+    pub addresses: Vec<Address>,
+}
+
 // This trait is to be implemented by an implementation of a client, and only the `call` method
 // is to be implemented.
 // All the other methods are methods that a client can call, which in turn do RPCs to the coin daemon.
@@ -196,6 +201,13 @@ pub trait RpcApi: Sized {
         args: &[serde_json::Value],
     ) -> Result<T>;
 
+    fn get_mining_info(&self) -> Result<MiningInfo> {
+        self.call("getmininginfo", &[])
+    }
+
+    fn get_address_utxos(&self, addresses: Vec<Address>) -> Result<Vec<AddressUtxos>> {
+        self.call("getaddressutxos", &[into_json(AddressList { addresses })?])
+    }
     // Identity
 
     /// Simplest way of getting an identity
@@ -310,6 +322,23 @@ pub trait RpcApi: Sized {
         let val = serde_json::to_value(hash)?;
 
         self.call("getblock", &[val])
+        // the BTC rpc library explicitly validates the bytes that are returned from the daemon.
+
+        // let hex: String = self.call("getblock", &[val])?;
+        // let bytes: Vec<u8> = FromHex::from_hex(&hex)?;
+        // let deserialized = bitcoin::consensus::encode::deserialize(&bytes)?;
+        //
+        // Ok(deserialized)
+        // fetch the hex
+        // make it a Vec<u8>
+        // that data needs to be consensus deserialized, to make sure it is a valid hash.
+        // into_json()
+    }
+
+    fn get_block_by_height(&self, height: u32) -> Result<Block> {
+        // let val = serde_json::to_value(hash)?;
+
+        self.call("getblock", &[height.to_string().into()])
         // the BTC rpc library explicitly validates the bytes that are returned from the daemon.
 
         // let hex: String = self.call("getblock", &[val])?;
@@ -538,11 +567,7 @@ pub trait RpcApi: Sized {
         minconf: Option<usize>,
         include_watchonly: Option<bool>,
     ) -> Result<Amount> {
-        let mut args = [
-            "*".into(),
-            opt_into_json(minconf)?,
-            opt_into_json(include_watchonly)?,
-        ];
+        let mut args = [opt_into_json(minconf)?, opt_into_json(include_watchonly)?];
         Ok(Amount::from_vrsc(self.call(
             "getbalance",
             handle_defaults(&mut args, &[0.into(), null()]),
