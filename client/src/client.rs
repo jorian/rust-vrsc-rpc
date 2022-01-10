@@ -7,6 +7,7 @@ use crate::json::*;
 use tracing::*;
 
 use jsonrpc;
+use serde_json::value::RawValue;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
@@ -131,15 +132,21 @@ impl Client {
             Auth::ConfigFile => {
                 let config = ConfigFile::new(name)?;
                 Ok(Client {
-                    client: jsonrpc::client::Client::new(
-                        format!("http://127.0.0.1:{}", config.rpcport),
+                    client: jsonrpc::client::Client::simple_http(
+                        &format!("http://127.0.0.1:{}", config.rpcport),
                         Some(config.rpcuser),
                         Some(config.rpcpassword),
-                    ),
+                    )
+                    .unwrap(),
                 })
             }
             Auth::UserPass(url, rpcuser, rpcpassword) => Ok(Client {
-                client: jsonrpc::client::Client::new(url, Some(rpcuser), Some(rpcpassword)),
+                client: jsonrpc::client::Client::simple_http(
+                    &url,
+                    Some(rpcuser),
+                    Some(rpcpassword),
+                )
+                .unwrap(),
             }),
         }
     }
@@ -153,11 +160,12 @@ impl Default for Client {
     fn default() -> Self {
         if let Ok(config) = ConfigFile::new("VRSC") {
             Client {
-                client: jsonrpc::client::Client::new(
-                    format!("http://127.0.0.1:{}", config.rpcport),
+                client: jsonrpc::client::Client::simple_http(
+                    &format!("http://127.0.0.1:{}", config.rpcport),
                     Some(config.rpcuser),
                     Some(config.rpcpassword),
-                ),
+                )
+                .unwrap(),
             }
         } else {
             panic!("no valid Verus configuration found")
@@ -171,15 +179,23 @@ impl RpcApi for Client {
         cmd: &str,
         args: &[serde_json::Value],
     ) -> Result<T> {
-        let req = self.client.build_request(&cmd, &args);
+        let raw_args: Vec<_> = args
+            .iter()
+            .map(|a| {
+                let json_string = serde_json::to_string(a)?;
+                serde_json::value::RawValue::from_string(json_string)
+            })
+            .map(|a| a.map_err(|e| Error::Json(e)))
+            .collect::<Result<Vec<_>>>()?;
+        let req = self.client.build_request(&cmd, &raw_args);
 
         debug!("{:#?}", &req);
 
-        let resp = self.client.send_request(&req).map_err(Error::from);
+        let resp = self.client.send_request(req).map_err(Error::from);
 
         debug!("{:#?}", &resp);
 
-        Ok(resp?.into_result()?)
+        Ok(resp?.result()?)
     }
 }
 
