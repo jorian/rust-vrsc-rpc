@@ -7,13 +7,13 @@ use crate::json::*;
 use tracing::*;
 
 use jsonrpc;
+use serde_with::rust::tuple_list_as_map;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
 use std::result;
 use vrsc::util::address::AddressType;
 use vrsc::*;
-
 pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -203,6 +203,24 @@ struct AddressList {
     pub addresses: Vec<Address>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SendCurrencyOutput<'a> {
+    pub currency: &'a str,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub amount: Amount,
+    pub address: &'a str,
+}
+
+impl<'a> SendCurrencyOutput<'a> {
+    pub fn new(currency: &'a str, amount: Amount, address: &'a str) -> Self {
+        SendCurrencyOutput {
+            currency,
+            amount,
+            address,
+        }
+    }
+}
+
 // This trait is to be implemented by an implementation of a client, and only the `call` method
 // is to be implemented.
 // All the other methods are methods that a client can call, which in turn do RPCs to the coin daemon.
@@ -215,6 +233,24 @@ pub trait RpcApi: Sized {
         cmd: &str,
         args: &[serde_json::Value],
     ) -> Result<T>;
+
+    // the from address can be sapling, an id, an actual address or a wildcard address
+    fn send_currency(
+        &self,
+        from: &str,
+        outputs: Vec<SendCurrencyOutput>,
+        minconf: Option<u16>,
+        fee_amount: Option<f64>,
+    ) -> Result<String> {
+        self.call("sendcurrency", &[from.into(), into_json(outputs)?])
+    }
+
+    fn validate_address<S>(&self, address: S) -> Result<ValidateAddress>
+    where
+        S: Into<String>,
+    {
+        self.call("validateaddress", &[address.into().into()])
+    }
 
     fn get_mining_info(&self) -> Result<MiningInfo> {
         self.call("getmininginfo", &[])
@@ -517,11 +553,12 @@ pub trait RpcApi: Sized {
     fn getrawtransaction(&self) -> Result<()> {
         unimplemented!()
     }
-    fn sendrawtransaction(&self) -> Result<()> {
-        unimplemented!()
+    fn sendrawtransaction(&self, signed_hex: &str) -> Result<String> {
+        self.call("sendrawtransaction", &[signed_hex.into()])
     }
-    fn signrawtransaction(&self) -> Result<()> {
-        unimplemented!()
+
+    fn signrawtransaction(&self, hex: &str) -> Result<SignRawTransactionResult> {
+        self.call("signrawtransaction", &[hex.into()])
     }
 
     fn get_raw_transaction_verbose(

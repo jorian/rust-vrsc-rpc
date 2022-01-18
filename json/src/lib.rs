@@ -33,6 +33,44 @@ impl<'a> serde::Serialize for PubkeyOrAddress<'a> {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SignRawTransactionResult {
+    pub hex: String,
+    pub complete: bool,
+    pub errors: Option<Vec<SignRawTransactionResultError>>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SignRawTransactionResultError {
+    pub txid: Txid,
+    pub vout: u16,
+    pub scriptSig: String,
+    pub sequence: u64,
+    pub error: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SendCurrencyResult {
+    txid: Option<Txid>,
+    hextx: Option<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ValidateAddress {
+    #[serde(rename = "isvalid")]
+    pub is_valid: bool,
+    pub address: Address,
+    #[serde(rename = "scriptPubKey")]
+    pub script_pubkey: Script,
+    pub segid: u8,
+    #[serde(rename = "ismine")]
+    pub is_mine: bool,
+    #[serde(rename = "isscript")]
+    pub is_script: bool,
+    #[serde(rename = "iswatchonly")]
+    pub is_watch_only: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MiningInfo {
     pub blocks: u64,
     pub currentblocksize: u32,
