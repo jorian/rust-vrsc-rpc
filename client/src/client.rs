@@ -204,19 +204,19 @@ struct AddressList {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SendCurrencyOutput<'a> {
-    pub currency: &'a str,
+pub struct SendCurrencyOutput {
+    pub currency: String,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: Amount,
-    pub address: &'a str,
+    pub address: String,
 }
 
-impl<'a> SendCurrencyOutput<'a> {
-    pub fn new(currency: &'a str, amount: Amount, address: &'a str) -> Self {
+impl SendCurrencyOutput {
+    pub fn new<S: Into<String>>(currency: S, amount: Amount, address: S) -> Self {
         SendCurrencyOutput {
-            currency,
+            currency: currency.into(),
             amount,
-            address,
+            address: address.into(),
         }
     }
 }
