@@ -33,6 +33,36 @@ impl<'a> serde::Serialize for PubkeyOrAddress<'a> {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ZOperationStatusResult {
+    pub id: String,
+    pub status: String,
+    pub creation_time: u64,
+    pub result: Option<ZOperationStatusResultTxid>,
+    pub error: Option<ZOperationStatusResultError>,
+    pub execution_secs: Option<f64>,
+    pub method: String,
+    pub params: Vec<Option<ZOperationStatusResultParam>>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ZOperationStatusResultError {
+    pub code: i32,
+    pub message: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ZOperationStatusResultParam {
+    pub address: String,
+    pub amount: f64,
+    pub currency: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ZOperationStatusResultTxid {
+    pub txid: Txid,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SignRawTransactionResult {
     pub hex: String,
     pub complete: bool,
@@ -43,7 +73,8 @@ pub struct SignRawTransactionResult {
 pub struct SignRawTransactionResultError {
     pub txid: Txid,
     pub vout: u16,
-    pub scriptSig: String,
+    #[serde(rename = "scriptSig")]
+    pub script_sig: String,
     pub sequence: u64,
     pub error: String,
 }

@@ -7,7 +7,6 @@ use crate::json::*;
 use tracing::*;
 
 use jsonrpc;
-use serde_with::rust::tuple_list_as_map;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
@@ -212,11 +211,11 @@ pub struct SendCurrencyOutput {
 }
 
 impl SendCurrencyOutput {
-    pub fn new<S: Into<String>>(currency: S, amount: Amount, address: S) -> Self {
+    pub fn new(currency: String, amount: Amount, address: String) -> Self {
         SendCurrencyOutput {
-            currency: currency.into(),
+            currency,
             amount,
-            address: address.into(),
+            address,
         }
     }
 }
@@ -234,13 +233,20 @@ pub trait RpcApi: Sized {
         args: &[serde_json::Value],
     ) -> Result<T>;
 
+    fn z_get_operation_status(
+        &self,
+        opid: Vec<&str>,
+    ) -> Result<Vec<Option<ZOperationStatusResult>>> {
+        self.call("z_getoperationstatus", &[into_json(opid)?])
+    }
+
     // the from address can be sapling, an id, an actual address or a wildcard address
     fn send_currency(
         &self,
         from: &str,
         outputs: Vec<SendCurrencyOutput>,
-        minconf: Option<u16>,
-        fee_amount: Option<f64>,
+        _minconf: Option<u16>,
+        _fee_amount: Option<f64>,
     ) -> Result<String> {
         self.call("sendcurrency", &[from.into(), into_json(outputs)?])
     }
