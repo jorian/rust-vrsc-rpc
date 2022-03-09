@@ -33,6 +33,21 @@ impl<'a> serde::Serialize for PubkeyOrAddress<'a> {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ListCurrenciesResult(pub Vec<Currency>);
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Currency {
+    pub currencydefinition: CurrencyDefinition,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyDefinition {
+    pub version: u8,
+    pub currencyidhex: String,
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ZOperationStatusResult {
     pub id: String,
     pub status: String,
