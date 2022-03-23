@@ -84,10 +84,10 @@ impl ConfigFile {
                 path.push(vt.to_ascii_lowercase());
                 path.push(&format!("{}.conf", vt));
             }
-            _x => {
+            x => {
                 path = self::ConfigFile::get_verustest_installation_folder()?;
-                path.push(_x.to_ascii_lowercase());
-                path.push(format!("{}.conf", _x.to_ascii_lowercase()));
+                path.push(x);
+                path.push(format!("{}.conf", x));
             }
         }
 
