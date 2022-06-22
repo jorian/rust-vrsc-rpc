@@ -34,19 +34,19 @@ pub struct InnerIdentity {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NameCommitment {
-    txid: Txid,
-    namereservation: NameReservation,
+    pub txid: Txid,
+    pub namereservation: NameReservation,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NameReservation {
-    name: String,
-    salt: String,
+    pub name: String,
+    pub salt: String,
     // if no refferal was given, the response is an empty string.
     #[serde(deserialize_with = "object_empty_as_none")]
-    referral: Option<Address>,
-    parent: String,
-    nameid: Address,
+    pub referral: Option<Address>,
+    pub parent: String,
+    pub nameid: Address,
 }
 
 pub fn object_empty_as_none<'de, D>(deserializer: D) -> Result<Option<Address>, D::Error>

@@ -282,8 +282,14 @@ pub trait RpcApi: Sized {
     fn recoveridentity(&self) -> Result<()> {
         unimplemented!()
     }
-    fn registeridentity(&self) -> Result<()> {
-        unimplemented!()
+    fn registeridentity(&self, namecommitment: NameCommitment) -> Result<()> {
+        self.call(
+            "registeridentity",
+            &[
+                namecommitment.txid.to_string().into(),
+                into_json(namecommitment.namereservation)?,
+            ],
+        )
     }
 
     // a referral can either be an identity name (identity@) or an identity address (address that starts with i)
@@ -292,7 +298,7 @@ pub trait RpcApi: Sized {
         &self,
         name: &str,
         controll_address: Address,
-        referral: Option<&str>,
+        referral: Option<String>,
     ) -> Result<NameCommitment> {
         if let Some(referral) = referral {
             self.call(

@@ -1,10 +1,10 @@
 [package]
-name = "vrsc-rpc-json"
-description = "a wrapper for RPC responses in JSON for Verus"
-version = "0.0.2"
 authors = ["jorian"]
+description = "a wrapper for RPC responses in JSON for Verus"
 edition = "2021"
 license = "MIT"
+name = "vrsc-rpc-json"
+version = "0.0.2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,8 +12,9 @@ license = "MIT"
 path = "src/lib.rs"
 
 [dependencies]
-bitcoin = { version = "0.27", features = [ "use-serde" ] }
+bitcoin = {version = "0.27", features = ["use-serde"]}
 hex = "0.4"
-serde = { version = "1", features = [ "derive" ] }
+serde = {version = "1", features = ["derive"]}
 serde_json = "1"
-vrsc = "0.0.1"
+# vrsc = "0.0.1"
+vrsc = {path = "../../rust-vrsc/"}
