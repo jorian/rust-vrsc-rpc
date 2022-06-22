@@ -203,6 +203,11 @@ struct AddressList {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+struct ListCurrenciesQueryObject {
+    pub systemtype: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SendCurrencyOutput {
     pub currency: String,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
@@ -232,6 +237,19 @@ pub trait RpcApi: Sized {
         cmd: &str,
         args: &[serde_json::Value],
     ) -> Result<T>;
+
+    fn list_currencies(&self, system_type: Option<&str>) -> Result<ListCurrenciesResult> {
+        if let Some(systemtype) = system_type {
+            self.call(
+                "listcurrencies",
+                &[into_json(ListCurrenciesQueryObject {
+                    systemtype: String::from(systemtype),
+                })?],
+            )
+        } else {
+            self.call("listcurrencies", &[])
+        }
+    }
 
     fn z_get_operation_status(
         &self,

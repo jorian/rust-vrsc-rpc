@@ -33,6 +33,21 @@ impl<'a> serde::Serialize for PubkeyOrAddress<'a> {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ListCurrenciesResult(pub Vec<Currency>);
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Currency {
+    pub currencydefinition: CurrencyDefinition,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyDefinition {
+    pub version: u8,
+    pub currencyidhex: String,
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ZOperationStatusResult {
     pub id: String,
     pub status: String,
@@ -421,27 +436,34 @@ pub struct ListUnspentResult {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetRawTransactionResultVerbose {
     pub hex: String,
-    pub txid: bitcoin::Txid,
+    pub txid: Txid,
+    pub overwintered: bool,
     pub version: u32,
+    pub versiongroupid: String,
     pub locktime: u64,
     pub expiryheight: u32,
     pub vin: Vec<GetRawTransactionVin>,
     pub vout: Vec<GetRawTransactionVout>,
     pub vjoinsplit: Vec<GetRawTransactionVJoinSplit>,
     pub blockhash: Option<bitcoin::BlockHash>, // transaction might not be in a block yet
-    pub height: Option<u32>,
+    pub height: Option<i32>,
     pub confirmations: Option<u32>,
-    pub rawconfirmations: Option<u32>,
     pub time: Option<u64>,
     pub blocktime: Option<u64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetRawTransactionVin {
-    pub txid: bitcoin::Txid,
-    pub vout: u32,
+    pub txid: Option<bitcoin::Txid>,
+    pub vout: Option<u32>,
+    pub address: Option<String>,
     #[serde(rename = "scriptSig")]
-    pub script_sig: GetRawTransactionVinScriptSig,
+    pub script_sig: Option<GetRawTransactionVinScriptSig>,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc::opt")]
+    pub value: Option<Amount>,
+    #[serde(rename = "valueSat", with = "vrsc::util::amount::serde::as_vrsc::opt")]
+    pub value_sat: Option<Amount>,
+    pub coinbase: Option<String>,
     pub sequence: u32,
 }
 

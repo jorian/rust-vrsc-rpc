@@ -36,15 +36,13 @@ impl ConfigFile {
             OSType::Macos | OSType::Windows => {
                 if let Some(path) = dirs::data_local_dir() {
                     full_path.push(path);
-                    full_path.push("Komodo") 
+                    full_path.push("Komodo")
                 } else {
                     return Err(Error::IOError(ErrorKind::NotFound.into()));
                 }
             }
             _ => return Err(Error::IOError(ErrorKind::Other.into())),
         }
-        
-        dbg!(&full_path);
 
         if !full_path.is_dir() {
             return Err(Error::IOError(ErrorKind::NotFound.into()));
@@ -64,7 +62,7 @@ impl ConfigFile {
             path.push("pbaas");
 
             if !path.is_dir() {
-                return Err(Error::IOError(ErrorKind::NotADirectory.into()));
+                return Err(Error::IOError(ErrorKind::NotFound.into()));
             }
 
             Ok(path)
@@ -86,10 +84,10 @@ impl ConfigFile {
                 path.push(vt.to_ascii_lowercase());
                 path.push(&format!("{}.conf", vt));
             }
-            _x => {
+            x => {
                 path = self::ConfigFile::get_verustest_installation_folder()?;
-                path.push(_x.to_ascii_lowercase());
-                path.push(format!("{}.conf", _x.to_ascii_lowercase()));
+                path.push(x);
+                path.push(format!("{}.conf", x));
             }
         }
 
