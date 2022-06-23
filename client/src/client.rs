@@ -258,6 +258,24 @@ pub trait RpcApi: Sized {
         self.call("z_getoperationstatus", &[into_json(opid)?])
     }
 
+    // fn z_shield_coinbase(
+    //     &self,
+    //     from: &str,
+    //     to_zaddress: &str,
+    //     fee: Option<f64>,
+    //     limit: Option<u8>,
+    // ) -> Result<ShieldCoinbaseResult> {
+    //     self.call(
+    //         "z_shieldcoinbase",
+    //         &[
+    //             from.into(),
+    //             to_zaddress.into(),
+    //             opt_into_json(fee)?,
+    //             opt_into_json(limit)?,
+    //         ],
+    //     )
+    // }
+
     // the from address can be sapling, an id, an actual address or a wildcard address
     fn send_currency(
         &self,
@@ -300,13 +318,38 @@ pub trait RpcApi: Sized {
     fn recoveridentity(&self) -> Result<()> {
         unimplemented!()
     }
-    fn registeridentity(&self, namecommitment: NameCommitment) -> Result<()> {
+    fn registeridentity(&self, namecommitment: NameCommitment) -> Result<bitcoin::Txid> {
+        #[derive(Serialize)]
+        struct Argument<'a> {
+            txid: bitcoin::Txid,
+            namereservation: NameReservation,
+            identity: Identity<'a>,
+        }
+
+        #[derive(Serialize)]
+        struct Identity<'a> {
+            name: &'a str,
+            primaryaddresses: Vec<Address>,
+            minimumsignatures: Option<u8>,
+            privateaddress: Option<String>,
+            revocationauthority: Option<String>,
+            recoveryauthority: Option<String>,
+        }
+
         self.call(
             "registeridentity",
-            &[
-                namecommitment.txid.to_string().into(),
-                into_json(namecommitment.namereservation)?,
-            ],
+            &[into_json(Argument {
+                txid: namecommitment.txid,
+                namereservation: namecommitment.namereservation.clone(),
+                identity: Identity {
+                    name: &namecommitment.namereservation.name,
+                    primaryaddresses: vec![namecommitment.namereservation.nameid],
+                    minimumsignatures: None,
+                    privateaddress: None,
+                    recoveryauthority: None,
+                    revocationauthority: None,
+                },
+            })?],
         )
     }
 
@@ -901,12 +944,6 @@ pub trait RpcApi: Sized {
     fn get_snapshot(&self, top: Option<String>) -> Result<Snapshot> {
         let mut args = [opt_into_json(top)?];
         self.call("getsnapshot", handle_defaults(&mut args, &[null()]))
-    }
-
-    // TOKENS
-
-    fn tokenv2info(&self, token_id: &str) -> Result<TokenInfo> {
-        self.call("tokenv2info", &[token_id.into()])
     }
 }
 

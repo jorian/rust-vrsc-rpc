@@ -25,7 +25,7 @@ impl ConfigFile {
     fn get_komodo_installation_folder() -> Result<PathBuf> {
         let mut full_path = PathBuf::new();
         match os_info::get().os_type() {
-            OSType::Ubuntu | OSType::Linux => {
+            OSType::Ubuntu | OSType::Linux | OSType::Debian | OSType::OracleLinux => {
                 if let Some(path) = dirs::home_dir() {
                     full_path.push(path);
                     full_path.push(".komodo");

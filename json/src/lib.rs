@@ -33,6 +33,19 @@ impl<'a> serde::Serialize for PubkeyOrAddress<'a> {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ShieldCoinbaseResult {
+    #[serde(rename = "remainingUTXOs")]
+    pub remaining_utxos: u32,
+    #[serde(rename = "remainingValue")]
+    pub remaining_value: f64,
+    #[serde(rename = "shieldingUTXOs")]
+    pub shielding_utxos: u32,
+    #[serde(rename = "shieldingValue")]
+    pub shielding_value: f64,
+    pub opid: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ListCurrenciesResult(pub Vec<Currency>);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -459,9 +472,13 @@ pub struct GetRawTransactionVin {
     pub address: Option<String>,
     #[serde(rename = "scriptSig")]
     pub script_sig: Option<GetRawTransactionVinScriptSig>,
-    #[serde(with = "vrsc::util::amount::serde::as_vrsc::opt")]
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc::opt", default)]
     pub value: Option<Amount>,
-    #[serde(rename = "valueSat", with = "vrsc::util::amount::serde::as_vrsc::opt")]
+    #[serde(
+        rename = "valueSat",
+        with = "vrsc::util::amount::serde::as_sat::opt",
+        default
+    )]
     pub value_sat: Option<Amount>,
     pub coinbase: Option<String>,
     pub sequence: u32,
