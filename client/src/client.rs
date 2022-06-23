@@ -318,7 +318,11 @@ pub trait RpcApi: Sized {
     fn recoveridentity(&self) -> Result<()> {
         unimplemented!()
     }
-    fn registeridentity(&self, namecommitment: NameCommitment) -> Result<bitcoin::Txid> {
+    fn registeridentity(
+        &self,
+        namecommitment: NameCommitment,
+        address: Address,
+    ) -> Result<bitcoin::Txid> {
         #[derive(Serialize)]
         struct Argument<'a> {
             txid: bitcoin::Txid,
@@ -330,9 +334,13 @@ pub trait RpcApi: Sized {
         struct Identity<'a> {
             name: &'a str,
             primaryaddresses: Vec<Address>,
+            #[serde(skip_serializing_if = "Option::is_none")]
             minimumsignatures: Option<u8>,
+            #[serde(skip_serializing_if = "Option::is_none")]
             privateaddress: Option<String>,
+            #[serde(skip_serializing_if = "Option::is_none")]
             revocationauthority: Option<String>,
+            #[serde(skip_serializing_if = "Option::is_none")]
             recoveryauthority: Option<String>,
         }
 
@@ -343,7 +351,7 @@ pub trait RpcApi: Sized {
                 namereservation: namecommitment.namereservation.clone(),
                 identity: Identity {
                     name: &namecommitment.namereservation.name,
-                    primaryaddresses: vec![namecommitment.namereservation.nameid],
+                    primaryaddresses: vec![address],
                     minimumsignatures: None,
                     privateaddress: None,
                     recoveryauthority: None,
@@ -541,7 +549,7 @@ pub trait RpcApi: Sized {
     }
     fn get_txout(
         &self,
-        txid: bitcoin::Txid,
+        txid: &bitcoin::Txid,
         n_vout: u32,
         include_mempool: Option<bool>,
     ) -> Result<TxOutResult> {

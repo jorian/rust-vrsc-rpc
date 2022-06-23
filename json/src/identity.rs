@@ -42,8 +42,10 @@ pub struct NameCommitment {
 pub struct NameReservation {
     pub name: String,
     pub salt: String,
+    pub version: u8,
     // if no refferal was given, the response is an empty string.
     #[serde(deserialize_with = "object_empty_as_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub referral: Option<Address>,
     pub parent: String,
     pub nameid: Address,
