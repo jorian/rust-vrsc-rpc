@@ -321,7 +321,9 @@ pub trait RpcApi: Sized {
     fn registeridentity(
         &self,
         namecommitment: NameCommitment,
-        address: Address,
+        addresses: Vec<Address>,
+        minimum_signatures: Option<u8>,
+        private_address: Option<String>,
     ) -> Result<bitcoin::Txid> {
         #[derive(Serialize)]
         struct Argument<'a> {
@@ -351,9 +353,9 @@ pub trait RpcApi: Sized {
                 namereservation: namecommitment.namereservation.clone(),
                 identity: Identity {
                     name: &namecommitment.namereservation.name,
-                    primaryaddresses: vec![address],
-                    minimumsignatures: None,
-                    privateaddress: None,
+                    primaryaddresses: addresses,
+                    minimumsignatures: minimum_signatures,
+                    privateaddress: private_address,
                     recoveryauthority: None,
                     revocationauthority: None,
                 },
@@ -366,7 +368,7 @@ pub trait RpcApi: Sized {
     fn registernamecommitment(
         &self,
         name: &str,
-        controll_address: Address,
+        controll_address: &Address,
         referral: Option<String>,
     ) -> Result<NameCommitment> {
         if let Some(referral) = referral {
