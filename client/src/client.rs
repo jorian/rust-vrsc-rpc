@@ -320,7 +320,7 @@ pub trait RpcApi: Sized {
     }
     fn registeridentity(
         &self,
-        namecommitment: NameCommitment,
+        namecommitment: &NameCommitment,
         addresses: Vec<Address>,
         minimum_signatures: Option<u8>,
         private_address: Option<String>,
