@@ -55,9 +55,15 @@ impl ConfigFile {
         if let Some(mut path) = dirs::home_dir() {
             match os_info::get().os_type() {
                 OSType::Ubuntu | OSType::Linux => path.push(".verustest"),
-                OSType::Macos | OSType::Windows => path.push("VerusTest"),
+                OSType::Macos => {
+                    path.push("Library");
+                    path.push("Application Support");
+                    path.push("VerusTest");
+                }
                 _ => return Err(Error::IOError(ErrorKind::Unsupported.into())),
             }
+
+            dbg!(&path);
 
             path.push("pbaas");
 
@@ -71,25 +77,28 @@ impl ConfigFile {
         }
     }
 
-    pub fn new(name: &str) -> Result<Self> {
+    pub fn new(name: &str, currencyidhex: Option<&str>) -> Result<Self> {
         let mut path;
         match name {
-            v if v.to_ascii_uppercase() == "VRSC" => {
+            s if s.to_ascii_uppercase() == "VRSC" => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push(v);
-                path.push(&format!("{}.conf", v));
+                path.push(s.to_ascii_uppercase());
+                path.push(&format!("{}.conf", s.to_ascii_uppercase()));
             }
-            vt if vt.to_ascii_lowercase() == "vrsctest" => {
+            s if s.to_ascii_lowercase() == "vrsctest" => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push(vt.to_ascii_lowercase());
-                path.push(&format!("{}.conf", vt));
+                path.push(s.to_ascii_lowercase());
+                path.push(&format!("{}.conf", s.to_ascii_lowercase()));
             }
-            x => {
+            _ => {
+                let hex = currencyidhex.expect("currencyidhex must be given");
                 path = self::ConfigFile::get_verustest_installation_folder()?;
-                path.push(x);
-                path.push(format!("{}.conf", x));
+                // must panic because at this stage it must be a currency
+                path.push(hex);
+                path.push(format!("{}.conf", hex));
             }
         }
+        dbg!(&path);
 
         if !path.exists() {
             return Err(Error::IOError(ErrorKind::NotFound.into()));

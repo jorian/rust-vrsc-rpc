@@ -125,10 +125,10 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn chain(name: &str, auth: Auth) -> Result<Self> {
+    pub fn chain(name: &str, auth: Auth, currencyidhex: Option<&str>) -> Result<Self> {
         match auth {
             Auth::ConfigFile => {
-                let config = ConfigFile::new(name)?;
+                let config = ConfigFile::new(name, currencyidhex)?;
                 Ok(Client {
                     client: jsonrpc::client::Client::simple_http(
                         &format!("http://127.0.0.1:{}", config.rpcport),
@@ -156,7 +156,7 @@ impl Default for Client {
     /// - $HOME/.komodo/VRSC/VRSC.conf` does not exist
     /// - one of rpcport, rpcuser or rpcpassword is not found in VRSC.conf
     fn default() -> Self {
-        if let Ok(config) = ConfigFile::new("VRSC") {
+        if let Ok(config) = ConfigFile::new("VRSC", None) {
             Client {
                 client: jsonrpc::client::Client::simple_http(
                     &format!("http://127.0.0.1:{}", config.rpcport),
@@ -965,10 +965,10 @@ mod tests {
 
     #[test]
     fn get_config() {
-        let config_file = ConfigFile::new("VRSC").unwrap();
+        let config_file = ConfigFile::new("VRSC", None).unwrap();
         println!("{:#?}", &config_file);
 
-        let client = Client::chain("VRSC", Auth::ConfigFile);
+        let client = Client::chain("VRSC", Auth::ConfigFile, None);
         assert!(client.is_ok());
 
         let client = Client::chain(
@@ -978,6 +978,7 @@ mod tests {
                 "1kj23k1l23".to_string(),
                 "5jkhkjhl5".to_string(),
             ),
+            None,
         );
         assert!(client.is_ok());
     }
