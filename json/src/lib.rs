@@ -318,6 +318,7 @@ pub struct GetTransactionResult {
     pub amount: f64,
     pub fee: Option<f64>,
     // pub rawconfirmations: u32,
+    pub generated: Option<bool>,
     pub confirmations: u32,
     pub blockhash: Option<bitcoin::BlockHash>,
     pub blockindex: Option<u32>,

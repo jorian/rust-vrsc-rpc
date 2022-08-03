@@ -324,6 +324,7 @@ pub trait RpcApi: Sized {
         addresses: Vec<Address>,
         minimum_signatures: Option<u8>,
         private_address: Option<String>,
+        currency_name: Option<String>,
     ) -> Result<bitcoin::Txid> {
         #[derive(Serialize)]
         struct Argument<'a> {
@@ -346,13 +347,18 @@ pub trait RpcApi: Sized {
             recoveryauthority: Option<String>,
         }
 
+        let identity_name = match currency_name {
+            Some(currency) => format!("{}.{}@", &namecommitment.namereservation.name, currency),
+            None => namecommitment.namereservation.name.clone(),
+        };
+
         self.call(
             "registeridentity",
             &[into_json(Argument {
                 txid: namecommitment.txid,
                 namereservation: namecommitment.namereservation.clone(),
                 identity: Identity {
-                    name: &namecommitment.namereservation.name,
+                    name: &identity_name,
                     primaryaddresses: addresses,
                     minimumsignatures: minimum_signatures,
                     privateaddress: private_address,
@@ -370,22 +376,34 @@ pub trait RpcApi: Sized {
         name: &str,
         controll_address: &Address,
         referral: Option<String>,
+        parentnameorid: Option<String>,
     ) -> Result<NameCommitment> {
-        if let Some(referral) = referral {
-            self.call(
-                "registernamecommitment",
-                &[
-                    name.into(),
-                    controll_address.to_string().into(),
-                    referral.into(),
-                ],
-            )
-        } else {
-            self.call(
-                "registernamecommitment",
-                &[name.into(), controll_address.to_string().into()],
-            )
-        }
+        self.call(
+            "registernamecommitment",
+            &[
+                name.into(),
+                controll_address.to_string().into(),
+                opt_into_json(referral)?,
+                opt_into_json(parentnameorid)?,
+            ],
+        )
+
+        // if let Some(referral) = referral {
+        //     self.call(
+        //         "registernamecommitment",
+        //         &[
+        //             name.into(),
+        //             controll_address.to_string().into(),
+        //             referral.into(),
+        //             opt_into_json(parentnameorid)?,
+        //         ],
+        //     )
+        // } else {
+        //     self.call(
+        //         "registernamecommitment",
+        //         &[name.into(), controll_address.to_string().into()],
+        //     )
+        // }
     }
     fn revokeidentity(&self) -> Result<()> {
         unimplemented!()
