@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::{fs, result};
+use tracing::debug;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -63,7 +64,7 @@ impl ConfigFile {
                 _ => return Err(Error::IOError(ErrorKind::Unsupported.into())),
             }
 
-            dbg!(&path);
+            debug!("{:?}", &path);
 
             path.push("pbaas");
 
@@ -98,7 +99,8 @@ impl ConfigFile {
                 path.push(format!("{}.conf", hex));
             }
         }
-        dbg!(&path);
+
+        debug!("{:?}", &path);
 
         if !path.exists() {
             return Err(Error::IOError(ErrorKind::NotFound.into()));
