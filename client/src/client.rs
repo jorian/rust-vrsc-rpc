@@ -325,6 +325,7 @@ pub trait RpcApi: Sized {
         minimum_signatures: Option<u8>,
         private_address: Option<String>,
         currency_name: Option<String>,
+        content_map: Option<serde_json::Value>,
     ) -> Result<bitcoin::Txid> {
         #[derive(Serialize)]
         struct Argument<'a> {
@@ -345,6 +346,8 @@ pub trait RpcApi: Sized {
             revocationauthority: Option<String>,
             #[serde(skip_serializing_if = "Option::is_none")]
             recoveryauthority: Option<String>,
+            #[serde(skip_serializing_if = "Option::is_none")]
+            contentmap: Option<serde_json::Value>,
         }
 
         let identity_name = match currency_name {
@@ -364,6 +367,7 @@ pub trait RpcApi: Sized {
                     privateaddress: private_address,
                     recoveryauthority: None,
                     revocationauthority: None,
+                    contentmap: content_map,
                 },
             })?],
         )
