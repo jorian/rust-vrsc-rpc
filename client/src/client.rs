@@ -321,7 +321,7 @@ pub trait RpcApi: Sized {
     fn registeridentity(
         &self,
         namecommitment: &NameCommitment,
-        addresses: Vec<&Address>,
+        addresses: &Vec<Address>,
         minimum_signatures: Option<u8>,
         private_address: Option<String>,
         currency_name: Option<String>,
@@ -337,7 +337,7 @@ pub trait RpcApi: Sized {
         #[derive(Serialize)]
         struct Identity<'a> {
             name: &'a str,
-            primaryaddresses: Vec<&'a Address>,
+            primaryaddresses: &'a Vec<Address>,
             #[serde(skip_serializing_if = "Option::is_none")]
             minimumsignatures: Option<u8>,
             #[serde(skip_serializing_if = "Option::is_none")]
