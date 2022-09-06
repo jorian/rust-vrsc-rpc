@@ -30,6 +30,13 @@ pub struct InnerIdentity {
     pub recoveryauthority: Address,
     pub privateaddress: Option<String>,
     pub timelock: u64,
+    pub txout: InnerIdentityTxOut,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct InnerIdentityTxOut {
+    pub txid: Txid,
+    pub voutnum: u16,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -94,3 +101,6 @@ pub struct IdentityOffer {
     pub systemid: Address,
     pub original: u8,
 }
+
+// #[derive(Clone, Debug, Deserialize, Serialize)]
+pub type IdentitiesWithAddressResult = Vec<InnerIdentity>;

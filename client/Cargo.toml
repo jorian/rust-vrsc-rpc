@@ -4,12 +4,13 @@ description = "A wrapper for Verus RPCs"
 edition = "2021"
 license = "MIT"
 name = "vrsc-rpc"
-version = "0.0.4"
+version = "0.0.5"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-vrsc-rpc-json = "0.0.4"
+# vrsc-rpc-json = "0.0.4"
+vrsc-rpc-json = {path = "../json"}
 
 dirs = "4.0"
 jsonrpc = "0.12"
