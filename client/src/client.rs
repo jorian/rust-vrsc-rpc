@@ -239,6 +239,10 @@ pub trait RpcApi: Sized {
         args: &[serde_json::Value],
     ) -> Result<T>;
 
+    fn get_vdxf_id(&self, uri: &str, options: Option<Value>) -> Result<GetVDXFIdResult> {
+        self.call("getvdxfid", &[uri.into(), opt_into_json(options)?])
+    }
+
     fn get_identities_with_address(
         &self,
         address: &str,

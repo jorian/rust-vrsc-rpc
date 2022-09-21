@@ -1,6 +1,9 @@
 use std::{collections::HashMap, str::FromStr};
 
-use bitcoin::Txid;
+use bitcoin::{
+    hashes::{ripemd160::Hash as hash160, sha256::Hash as hash256},
+    Txid,
+};
 use serde::de::{Deserialize, Deserializer};
 use vrsc::Address;
 
@@ -30,7 +33,7 @@ pub struct InnerIdentity {
     pub recoveryauthority: Address,
     pub privateaddress: Option<String>,
     pub timelock: u64,
-    pub txout: InnerIdentityTxOut,
+    pub txout: Option<InnerIdentityTxOut>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -104,3 +107,25 @@ pub struct IdentityOffer {
 
 // #[derive(Clone, Debug, Deserialize, Serialize)]
 pub type IdentitiesWithAddressResult = Vec<InnerIdentity>;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetVDXFIdResult {
+    pub vdxfid: Address,
+    pub hash160result: hash160,
+    pub qualifiedname: Option<QualifiedName>,
+    pub bounddata: Option<BoundData>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct QualifiedName {
+    pub name: String,
+    pub parentid: Option<String>,
+    pub namespace: Option<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BoundData {
+    pub vdxfkey: Address,
+    pub uint256: hash256,
+    pub indexnum: u32,
+}
