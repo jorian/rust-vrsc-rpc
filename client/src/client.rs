@@ -4,6 +4,7 @@ use crate::chain_config::{Auth, ConfigFile};
 use crate::error::Error;
 use crate::json::identity::*;
 use crate::json::*;
+use serde_json::{json, Value};
 use tracing::*;
 
 use jsonrpc;
@@ -241,6 +242,26 @@ pub trait RpcApi: Sized {
     // get_currency_state() for
     fn get_currency_state(&self, currency: &str) -> Result<Vec<GetCurrencyStateResult>> {
         self.call("getcurrencystate", &[into_json(currency)?])
+    }
+    fn get_vdxf_id(&self, uri: &str, options: Option<Value>) -> Result<GetVDXFIdResult> {
+        self.call("getvdxfid", &[uri.into(), opt_into_json(options)?])
+    }
+
+    fn get_identities_with_address(
+        &self,
+        address: &str,
+        fromheight: Option<u64>,
+        toheight: Option<u64>,
+        unspent: Option<bool>,
+    ) -> Result<IdentitiesWithAddressResult> {
+        let input = json!({
+            "address": address,
+            "fromheight": fromheight.unwrap_or(0),
+            "toheight": toheight.unwrap_or(0),
+            "unspent": unspent.unwrap_or(false)
+        });
+
+        self.call("getidentitieswithaddress", &[input])
     }
 
     fn list_currencies(&self, system_type: Option<&str>) -> Result<ListCurrenciesResult> {
