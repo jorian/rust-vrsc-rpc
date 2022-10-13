@@ -60,6 +60,7 @@ pub struct CurrencyDefinition {
     pub currencyidhex: String,
     pub name: String,
     pub options: u16,
+    pub fullyqualifiedname: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
