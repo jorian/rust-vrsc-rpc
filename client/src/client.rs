@@ -151,9 +151,9 @@ impl Client {
 }
 
 impl Default for Client {
-    /// Creates a default VerusClient based on parameters found in the VRSC.conf file in `$HOME/.komodo/VRSC/VRSC.conf`
+    /// Creates a default Verus client based on parameters found in the VRSC.conf file.
     /// Panics if
-    /// - $HOME/.komodo/VRSC/VRSC.conf` does not exist
+    /// - `VRSC.conf` does not exist
     /// - one of rpcport, rpcuser or rpcpassword is not found in VRSC.conf
     fn default() -> Self {
         if let Ok(config) = ConfigFile::new("VRSC", None) {
@@ -237,6 +237,11 @@ pub trait RpcApi: Sized {
         cmd: &str,
         args: &[serde_json::Value],
     ) -> Result<T>;
+
+    // get_currency_state() for
+    fn get_currency_state(&self, currency: &str) -> Result<Vec<GetCurrencyStateResult>> {
+        self.call("getcurrencystate", &[into_json(currency)?])
+    }
 
     fn list_currencies(&self, system_type: Option<&str>) -> Result<ListCurrenciesResult> {
         if let Some(systemtype) = system_type {

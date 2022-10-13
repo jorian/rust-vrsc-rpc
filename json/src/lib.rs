@@ -56,8 +56,41 @@ pub struct Currency {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CurrencyDefinition {
     pub version: u8,
+    pub currencyid: Address,
     pub currencyidhex: String,
     pub name: String,
+    pub options: u16,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetCurrencyStateResult {
+    pub height: u64,
+    pub blocktime: u64,
+    pub currencystate: CurrencyState,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyState {
+    pub flags: u16,
+    pub version: u16,
+    pub currencyid: Address,
+    pub reservecurrencies: Vec<ReserveCurrency>,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub initialsupply: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub emitted: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub supply: Amount,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ReserveCurrency {
+    pub currencyid: Address,
+    pub weight: f64,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub reserves: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub priceinreserve: Amount,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
