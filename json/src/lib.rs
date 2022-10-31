@@ -64,6 +64,15 @@ pub struct CurrencyDefinition {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetCurrencyResult {
+    pub currencynames: Option<CurrencyNames>,
+    pub fullyqualifiedname: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyNames(HashMap<Address, String>);
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetCurrencyStateResult {
     pub height: u64,
     pub blocktime: u64,

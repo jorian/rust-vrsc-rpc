@@ -239,6 +239,10 @@ pub trait RpcApi: Sized {
         args: &[serde_json::Value],
     ) -> Result<T>;
 
+    fn get_currency(&self, currency: &str) -> Result<GetCurrencyResult> {
+        self.call("getcurrency", &[into_json(currency)?])
+    }
+
     // get_currency_state() for
     fn get_currency_state(&self, currency: &str) -> Result<Vec<GetCurrencyStateResult>> {
         self.call("getcurrencystate", &[into_json(currency)?])
