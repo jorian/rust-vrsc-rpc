@@ -15,6 +15,7 @@ use crate::vrsc::{Address, Amount, PrivateKey, PublicKey, SignedAmount};
 
 use bitcoin::{BlockHash, Script, Txid};
 use serde::*;
+use serde_json::Value;
 use std::{collections::HashMap, fmt::Display, num::ParseIntError, str, str::FromStr};
 
 #[derive(Clone, Debug)]
@@ -563,6 +564,47 @@ pub struct GetRawTransactionVoutScriptPubKey {
     #[serde(rename = "type")]
     pub _type: String,
     pub addresses: Option<Vec<Address>>,
+    // verus pbaas keys
+    pub reservetransfer: Option<GetRawTransactionScriptPubKeyReserveTransfer>,
+    pub crosschainimport: Option<GetRawTransactionScriptPubKeyCrossChainImport>,
+    pub reserveoutput: Option<GetRawTransactionScriptPubKeyReserveImport>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GetRawTransactionScriptPubKeyReserveTransfer {
+    pub convert: bool,
+    // #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub currencyvalues: HashMap<Address, f64>,
+    pub destination: Value,
+    pub destinationcurrencyid: Address,
+    pub feecurrencyid: Address,
+    pub fees: f64,
+    pub flags: i32,
+    pub reservetoreserve: Option<bool>,
+    pub version: u8,
+    pub via: Option<Address>,
+    pub spenttxid: Option<Txid>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GetRawTransactionScriptPubKeyCrossChainImport {
+    pub version: u8,
+    pub flags: i32,
+    pub sourcesystemid: Address,
+    pub sourceheight: u64,
+    pub importcurrencyid: Address,
+    pub valuein: HashMap<Address, f64>,
+    pub tokensout: Value,
+    pub numoutputs: u32,
+    pub hashtransfers: String,
+    pub exporttxid: Txid,
+    pub spenttxid: Option<Txid>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GetRawTransactionScriptPubKeyReserveImport {
+    version: u8,
+    currencyvalues: Value,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -841,149 +883,4 @@ where
 {
     let s = String::deserialize(deserializer)?;
     T::from_str(&s).map_err(de::Error::custom)
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TokenInfo {
-    pub result: String,
-    pub tokenid: String,
-    pub owner: String,
-    pub name: String,
-    pub supply: u32,
-    pub description: String,
-    #[serde(default, deserialize_with = "callback_opt")]
-    pub data: Option<TokelData>,
-    pub version: u32,
-    #[serde(rename = "IsMixed")]
-    pub is_mixed: String,
-    pub height: u32,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TokelData {
-    pub token_standard_version: u8,
-    pub token_id: u8,
-    pub token_url: String,
-    pub token_royalty_percentage: f32,
-    pub token_arbitrary_data_field: Option<String>, // todo this can be its own type and see if it's JSON or other structures.
-}
-
-impl TokelData {
-    pub fn from_data_string(data: &str) -> Self {
-        let evalcode = &data[0..2];
-        let evalversion = &data[2..4];
-
-        if evalcode != "f7" {
-            panic!("you are not using the correct eval code");
-        }
-
-        if evalversion != "01" {
-            panic!("this version is not supported");
-        }
-
-        let rest = &data[4..];
-
-        let decoded = decode_hex(rest).unwrap();
-        let token_id: u8;
-
-        if let Some(pos) = decoded.iter().position(|x| *x == 1) {
-            token_id = *decoded.get(pos + 1).unwrap();
-        } else {
-            panic!("code field id missing");
-        }
-
-        let token_url: &str;
-
-        if let Some(pos) = decoded.iter().position(|x| *x == 2) {
-            let length = *decoded.get(pos + 1).unwrap();
-            let url_bytes = &decoded[pos + 2..=length as usize + 1];
-            token_url = str::from_utf8(url_bytes).unwrap();
-        } else {
-            panic!("code field url missing");
-        }
-
-        let token_royalty_percentage: f32;
-
-        if let Some(pos) = decoded.iter().position(|x| *x == 3) {
-            let royalty = *decoded.get(pos + 1).unwrap();
-            token_royalty_percentage = royalty as f32 / 1000.0;
-        } else {
-            panic!("code field royalty_percentage missing");
-        }
-
-        let token_arbitrary_data_field: Option<String>;
-
-        // 04
-        // 05
-        // 02 02 ab cd ef
-        if let Some(pos) = decoded.iter().position(|x| *x == 4) {
-            let length = *decoded.get(pos + 1).unwrap();
-            if length > 0 {
-                let arbitrary_data_bytes = &decoded[pos + 2..=pos + length as usize + 1];
-
-                if let Ok(valid_string) = str::from_utf8(arbitrary_data_bytes) {
-                    token_arbitrary_data_field = Some(String::from(valid_string))
-                } else {
-                    // todo try to parse this into serde::value if it's JSON
-                    // todo what if the arbitrary data field is not utf8?
-                    token_arbitrary_data_field = None
-                }
-            } else {
-                token_arbitrary_data_field = None;
-            }
-        } else {
-            token_arbitrary_data_field = None;
-        }
-
-        TokelData {
-            token_standard_version: str::parse(evalversion).unwrap(),
-            token_id,
-            token_url: String::from(token_url),
-            token_royalty_percentage,
-            token_arbitrary_data_field,
-        }
-    }
-}
-
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
-    (0..s.len())
-        .step_by(2)
-        .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
-        .collect()
-}
-
-pub fn callback<'de, D>(deserializer: D) -> Result<TokelData, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s: String = Deserialize::deserialize(deserializer)?;
-    Ok(TokelData::from_data_string(&s))
-}
-
-#[derive(Debug, Deserialize)]
-struct WrappedTokelData(#[serde(deserialize_with = "callback")] TokelData);
-
-pub fn callback_opt<'de, D>(deserializer: D) -> Result<Option<TokelData>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    Option::<WrappedTokelData>::deserialize(deserializer).map(
-        |opt_wrapped: Option<WrappedTokelData>| {
-            opt_wrapped.map(|wrapped: WrappedTokelData| wrapped.0)
-        },
-    )
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::TokelData;
-    #[test]
-    fn non_utf8_arbitrary_data() {
-        let tokel_data = TokelData::from_data_string(
-            "f70101fe65530600021068747470733a2f2f736974652e6f7267030104050202abcdef",
-        );
-        assert_eq!(tokel_data.token_id, 254);
-        assert_eq!(tokel_data.token_url, "https://si");
-        assert!(tokel_data.token_arbitrary_data_field.is_none());
-    }
 }
