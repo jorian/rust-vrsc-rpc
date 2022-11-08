@@ -126,10 +126,34 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn chain(name: &str, auth: Auth, currencyidhex: Option<&str>) -> Result<Self> {
+    pub fn chain(testnet: bool, currencyidhex: &str, auth: Auth) -> Result<Self> {
         match auth {
             Auth::ConfigFile => {
-                let config = ConfigFile::new(name, currencyidhex)?;
+                let config = ConfigFile::pbaas(testnet, currencyidhex)?;
+                Ok(Client {
+                    client: jsonrpc::client::Client::simple_http(
+                        &format!("http://127.0.0.1:{}", config.rpcport),
+                        Some(config.rpcuser),
+                        Some(config.rpcpassword),
+                    )
+                    .unwrap(),
+                })
+            }
+            Auth::UserPass(url, rpcuser, rpcpassword) => Ok(Client {
+                client: jsonrpc::client::Client::simple_http(
+                    &url,
+                    Some(rpcuser),
+                    Some(rpcpassword),
+                )
+                .unwrap(),
+            }),
+        }
+    }
+
+    pub fn vrsc(testnet: bool, auth: Auth) -> Result<Self> {
+        match auth {
+            Auth::ConfigFile => {
+                let config = ConfigFile::vrsc(testnet)?;
                 Ok(Client {
                     client: jsonrpc::client::Client::simple_http(
                         &format!("http://127.0.0.1:{}", config.rpcport),
@@ -157,7 +181,7 @@ impl Default for Client {
     /// - `VRSC.conf` does not exist
     /// - one of rpcport, rpcuser or rpcpassword is not found in VRSC.conf
     fn default() -> Self {
-        if let Ok(config) = ConfigFile::new("VRSC", None) {
+        if let Ok(config) = ConfigFile::vrsc(false) {
             Client {
                 client: jsonrpc::client::Client::simple_http(
                     &format!("http://127.0.0.1:{}", config.rpcport),
@@ -1017,20 +1041,19 @@ mod tests {
 
     #[test]
     fn get_config() {
-        let config_file = ConfigFile::new("VRSC", None).unwrap();
+        let config_file = ConfigFile::vrsc(false).unwrap();
         println!("{:#?}", &config_file);
 
-        let client = Client::chain("VRSC", Auth::ConfigFile, None);
+        let client = Client::vrsc(false, Auth::ConfigFile);
         assert!(client.is_ok());
 
-        let client = Client::chain(
-            "VRSC",
+        let client = Client::vrsc(
+            false,
             Auth::UserPass(
                 "http://127.0.0.1:27777".to_string(),
                 "1kj23k1l23".to_string(),
                 "5jkhkjhl5".to_string(),
             ),
-            None,
         );
         assert!(client.is_ok());
     }

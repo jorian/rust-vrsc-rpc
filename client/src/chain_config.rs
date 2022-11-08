@@ -2,7 +2,7 @@ use crate::error::Error;
 use os_info::Type as OSType;
 use std::collections::HashMap;
 use std::io::ErrorKind;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::{fs, result};
 use tracing::debug;
 
@@ -78,59 +78,71 @@ impl ConfigFile {
         }
     }
 
-    pub fn new(name: &str, currencyidhex: Option<&str>) -> Result<Self> {
+    pub fn pbaas(testnet: bool, currencyidhex: &str) -> Result<Self> {
         let mut path;
-        match name {
-            s if s.to_ascii_uppercase() == "VRSC" => {
-                path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push(s.to_ascii_uppercase());
-                path.push(&format!("{}.conf", s.to_ascii_uppercase()));
-            }
-            s if s.to_ascii_lowercase() == "vrsctest" => {
-                path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push(s.to_ascii_lowercase());
-                path.push(&format!("{}.conf", s.to_ascii_lowercase()));
-            }
-            _ => {
-                let hex = currencyidhex.expect("currencyidhex must be given");
+
+        match testnet {
+            true => unimplemented!(),
+            false => {
                 path = self::ConfigFile::get_verustest_installation_folder()?;
-                // must panic because at this stage it must be a currency
-                path.push(hex);
-                path.push(format!("{}.conf", hex));
+                path.push(currencyidhex);
+                path.push(format!("{}.conf", currencyidhex));
+
+                debug!("{:?}", &path);
+                get_config(&path)
+            }
+        }
+    }
+
+    pub fn vrsc(testnet: bool) -> Result<Self> {
+        let mut path;
+        match testnet {
+            true => {
+                path = self::ConfigFile::get_komodo_installation_folder()?;
+                path.push("VRSC");
+                path.push("VRSC.conf");
+            }
+            false => {
+                path = self::ConfigFile::get_komodo_installation_folder()?;
+                path.push("vrsctest");
+                path.push("vrsctest.conf");
             }
         }
 
         debug!("{:?}", &path);
-
-        if !path.exists() {
-            return Err(Error::IOError(ErrorKind::NotFound.into()));
-        }
-
-        let contents = fs::read_to_string(path.to_str().unwrap())?;
-
-        let map: HashMap<String, String> = contents
-            .as_str()
-            .split('\n')
-            .map(|line| line.splitn(2, '=').collect::<Vec<&str>>())
-            .filter(|vec| vec.len() == 2)
-            .map(|vec| (vec[0].to_string(), vec[1].to_string()))
-            .collect::<HashMap<String, String>>();
-
-        let rpc_user = map.get("rpcuser").ok_or(Error::InvalidConfigFile)?;
-        let rpc_password = map.get("rpcpassword").ok_or(Error::InvalidConfigFile)?;
-        let rpc_port = match name {
-            // VRSC doesn't put rpcport in conf file at install, but users could have modified it afterwards.
-            "VRSC" => match map.get("rpcport") {
-                Some(port) => port,
-                None => "8232",
-            },
-            _ => map.get("rpcport").ok_or(Error::InvalidConfigFile)?,
-        };
-
-        Ok(ConfigFile {
-            rpcuser: rpc_user.to_owned(),
-            rpcpassword: rpc_password.to_owned(),
-            rpcport: rpc_port.parse::<u16>()?,
-        })
+        get_config(&path)
     }
+}
+
+pub fn get_config(path: &Path) -> Result<ConfigFile> {
+    if !path.exists() {
+        return Err(Error::IOError(ErrorKind::NotFound.into()));
+    }
+
+    let contents = fs::read_to_string(path.to_str().unwrap())?;
+
+    let map: HashMap<String, String> = contents
+        .as_str()
+        .split('\n')
+        .map(|line| line.splitn(2, '=').collect::<Vec<&str>>())
+        .filter(|vec| vec.len() == 2)
+        .map(|vec| (vec[0].to_string(), vec[1].to_string()))
+        .collect::<HashMap<String, String>>();
+
+    let rpc_user = map.get("rpcuser").ok_or(Error::InvalidConfigFile)?;
+    let rpc_password = map.get("rpcpassword").ok_or(Error::InvalidConfigFile)?;
+    let rpc_port = match path.ends_with("VRSC.conf") {
+        // VRSC doesn't put rpcport in conf file at install, but users could have modified it afterwards.
+        true => match map.get("rpcport") {
+            Some(port) => port,
+            None => "8232",
+        },
+        false => map.get("rpcport").ok_or(Error::InvalidConfigFile)?,
+    };
+
+    Ok(ConfigFile {
+        rpcuser: rpc_user.to_owned(),
+        rpcpassword: rpc_password.to_owned(),
+        rpcport: rpc_port.parse::<u16>()?,
+    })
 }

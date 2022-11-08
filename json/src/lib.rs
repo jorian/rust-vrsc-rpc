@@ -16,7 +16,7 @@ use crate::vrsc::{Address, Amount, PrivateKey, PublicKey, SignedAmount};
 use bitcoin::{BlockHash, Script, Txid};
 use serde::*;
 use serde_json::Value;
-use std::{collections::HashMap, fmt::Display, num::ParseIntError, str, str::FromStr};
+use std::{collections::HashMap, fmt::Display, str, str::FromStr};
 
 #[derive(Clone, Debug)]
 pub enum PubkeyOrAddress<'a> {
