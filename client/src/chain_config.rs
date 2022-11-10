@@ -82,8 +82,7 @@ impl ConfigFile {
         let mut path;
 
         match testnet {
-            true => unimplemented!(),
-            false => {
+            true => {
                 path = self::ConfigFile::get_verustest_installation_folder()?;
                 path.push(currencyidhex);
                 path.push(format!("{}.conf", currencyidhex));
@@ -91,6 +90,7 @@ impl ConfigFile {
                 debug!("{:?}", &path);
                 get_config(&path)
             }
+            false => unimplemented!(),
         }
     }
 
@@ -99,13 +99,13 @@ impl ConfigFile {
         match testnet {
             true => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push("VRSC");
-                path.push("VRSC.conf");
+                path.push("vrsctest");
+                path.push("vrsctest.conf");
             }
             false => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
-                path.push("vrsctest");
-                path.push("vrsctest.conf");
+                path.push("VRSC");
+                path.push("VRSC.conf");
             }
         }
 

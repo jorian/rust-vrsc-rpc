@@ -154,6 +154,7 @@ impl Client {
         match auth {
             Auth::ConfigFile => {
                 let config = ConfigFile::vrsc(testnet)?;
+                dbg!(&config);
                 Ok(Client {
                     client: jsonrpc::client::Client::simple_http(
                         &format!("http://127.0.0.1:{}", config.rpcport),

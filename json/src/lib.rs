@@ -58,6 +58,8 @@ pub struct Currency {
 pub struct CurrencyDefinition {
     pub version: u8,
     pub currencyid: Address,
+    pub parent: Option<Address>,
+    pub systemid: Address,
     pub currencyidhex: String,
     pub name: String,
     pub options: u16,
