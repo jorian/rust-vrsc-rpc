@@ -23,7 +23,7 @@ pub struct ConfigFile {
 }
 
 impl ConfigFile {
-    fn get_komodo_installation_folder() -> Result<PathBuf> {
+    pub fn get_komodo_installation_folder() -> Result<PathBuf> {
         let mut full_path = PathBuf::new();
         match os_info::get().os_type() {
             OSType::Ubuntu | OSType::Linux | OSType::Debian | OSType::OracleLinux => {
@@ -52,7 +52,7 @@ impl ConfigFile {
         Ok(full_path)
     }
 
-    fn get_verustest_installation_folder() -> Result<PathBuf> {
+    pub fn get_verustest_installation_folder() -> Result<PathBuf> {
         if let Some(mut path) = dirs::home_dir() {
             match os_info::get().os_type() {
                 OSType::Ubuntu | OSType::Linux => path.push(".verustest"),

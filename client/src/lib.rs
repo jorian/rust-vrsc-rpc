@@ -13,7 +13,7 @@ mod error;
 pub extern crate jsonrpc;
 pub extern crate vrsc_rpc_json;
 
-pub use chain_config::Auth;
+pub use chain_config::*;
 pub use client::*;
 pub use error::Error;
 pub use json::bitcoin;

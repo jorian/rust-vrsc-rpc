@@ -60,6 +60,7 @@ pub struct CurrencyDefinition {
     pub currencyid: Address,
     pub parent: Option<Address>,
     pub systemid: Address,
+    pub launchsystemid: Option<Address>,
     pub currencyidhex: String,
     pub name: String,
     pub options: u16,
