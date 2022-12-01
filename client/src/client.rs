@@ -121,6 +121,7 @@ fn handle_defaults<'a, 'b>(
     }
 }
 
+#[derive(Debug)]
 pub struct Client {
     client: jsonrpc::client::Client,
 }
