@@ -215,11 +215,27 @@ impl RpcApi for Client {
 
         debug!("{:#?}", &req);
 
-        let resp = self.client.send_request(req).map_err(Error::from);
+        let mut i = 0;
 
-        debug!("{:#?}", &resp);
+        loop {
+            if i < 100 {
+                match self.client.send_request(req.clone()).map_err(Error::from) {
+                    Ok(resp) => {
+                        debug!("{:#?}", &resp);
 
-        Ok(resp?.result()?)
+                        return Ok(resp.result()?);
+                    }
+
+                    Err(e) => {
+                        debug!("got error, trying again: {:?}", e);
+                        i += 1;
+                        continue;
+                    }
+                }
+            } else {
+                return Err(Error::VRSCError(String::from("Looped too long")));
+            }
+        }
     }
 }
 
@@ -242,11 +258,11 @@ pub struct SendCurrencyOutput {
 }
 
 impl SendCurrencyOutput {
-    pub fn new(currency: String, amount: Amount, address: String) -> Self {
+    pub fn new(currency: &str, amount: &Amount, address: &str) -> Self {
         SendCurrencyOutput {
-            currency,
-            amount,
-            address,
+            currency: currency.to_string(),
+            amount: amount.clone(),
+            address: address.to_string(),
         }
     }
 }

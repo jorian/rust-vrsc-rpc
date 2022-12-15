@@ -575,7 +575,7 @@ pub struct GetRawTransactionVoutScriptPubKey {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetRawTransactionScriptPubKeyReserveTransfer {
-    pub convert: bool,
+    pub convert: Option<bool>,
     // #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub currencyvalues: HashMap<Address, f64>,
     pub destination: Value,
