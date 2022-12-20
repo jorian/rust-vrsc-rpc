@@ -129,7 +129,7 @@ pub struct ZOperationStatusResultError {
 pub struct ZOperationStatusResultParam {
     pub address: String,
     pub amount: f64,
-    pub currency: String,
+    pub currency: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
