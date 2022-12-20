@@ -251,16 +251,17 @@ struct ListCurrenciesQueryObject {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendCurrencyOutput {
-    pub currency: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub currency: Option<&'static str>,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: Amount,
     pub address: String,
 }
 
 impl SendCurrencyOutput {
-    pub fn new(currency: &str, amount: &Amount, address: &str) -> Self {
+    pub fn new(currency: Option<&'static str>, amount: &Amount, address: &str) -> Self {
         SendCurrencyOutput {
-            currency: currency.to_string(),
+            currency: currency,
             amount: amount.clone(),
             address: address.to_string(),
         }
