@@ -281,6 +281,10 @@ pub trait RpcApi: Sized {
         args: &[serde_json::Value],
     ) -> Result<T>;
 
+    fn rescan_from_height(&self, height: u64) -> Result<()> {
+        self.call("rescanfromheight", &[height.into()])
+    }
+
     fn get_currency(&self, currency: &str) -> Result<GetCurrencyResult> {
         self.call("getcurrency", &[into_json(currency)?])
     }
