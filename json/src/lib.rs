@@ -901,7 +901,7 @@ pub struct PeerInfo {
     pub bytessent: u64,
     pub bytesrecv: u64,
     pub conntime: u64,
-    pub timeoffset: u32,
+    pub timeoffset: i32,
     pub pingtime: f64,
     pub version: u32,
     pub subver: String,
