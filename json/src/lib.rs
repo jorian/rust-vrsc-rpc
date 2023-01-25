@@ -887,3 +887,29 @@ where
     let s = String::deserialize(deserializer)?;
     T::from_str(&s).map_err(de::Error::custom)
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PeerInfo {
+    pub id: u32,
+    pub addr: String,
+    pub addrlocal: String,
+    pub services: String,
+    pub tls_established: bool,
+    pub tls_verified: bool,
+    pub lastsend: u64,
+    pub lastrecv: u64,
+    pub bytessent: u64,
+    pub bytesrecv: u64,
+    pub conntime: u64,
+    pub timeoffset: u32,
+    pub pingtime: f64,
+    pub version: u32,
+    pub subver: String,
+    pub inbound: bool,
+    pub startingheight: u64,
+    pub banscore: u32,
+    pub synced_headers: u64,
+    pub synced_blocks: u64,
+    pub inflight: Vec<u64>,
+    pub whitelisted: bool
+}

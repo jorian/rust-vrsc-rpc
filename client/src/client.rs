@@ -215,27 +215,11 @@ impl RpcApi for Client {
 
         debug!("{:#?}", &req);
 
-        let mut i = 0;
+        let resp = self.client.send_request(req).map_err(Error::from);
 
-        loop {
-            if i < 100 {
-                match self.client.send_request(req.clone()).map_err(Error::from) {
-                    Ok(resp) => {
-                        debug!("{:#?}", &resp);
+        debug!("{:#?}", &resp);
 
-                        return Ok(resp.result()?);
-                    }
-
-                    Err(e) => {
-                        debug!("got error, trying again: {:?}", e);
-                        i += 1;
-                        continue;
-                    }
-                }
-            } else {
-                return Err(Error::VRSCError(String::from("Looped too long")));
-            }
-        }
+        Ok(resp?.result()?)
     }
 }
 
@@ -626,6 +610,11 @@ pub trait RpcApi: Sized {
     fn get_mempool_info(&self) -> Result<MempoolInfo> {
         self.call("getmempoolinfo", &[])
     }
+
+    fn get_peer_info(&self) -> Result<Vec<PeerInfo>> {
+        self.call("getpeerinfo", &[])
+    }
+
     fn get_raw_mempool(&self) -> Result<Vec<bitcoin::Txid>> {
         self.call("getrawmempool", &[])
     }

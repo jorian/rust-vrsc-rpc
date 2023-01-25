@@ -124,7 +124,7 @@ z_validatepaymentdisclosure "paymentdisclosure"
 - [ ] getdeprecationinfo
 - [ ] getnettotals
 - [ ] getnetworkinfo
-- [ ] getpeerinfo
+- [x] getpeerinfo
 - [ ] listbanned
 - [ ] ping
 - [ ] setban "ip(/netmask)" "add|remove" (bantime) (absolute)
