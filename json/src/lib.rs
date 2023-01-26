@@ -555,7 +555,7 @@ pub struct GetRawTransactionVout {
     #[serde(rename = "spentIndex")]
     pub spent_index: Option<u32>,
     #[serde(rename = "spentHeight")]
-    pub spent_height: Option<u64>,
+    pub spent_height: Option<i64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -911,5 +911,5 @@ pub struct PeerInfo {
     pub synced_headers: u64,
     pub synced_blocks: u64,
     pub inflight: Vec<u64>,
-    pub whitelisted: bool
+    pub whitelisted: bool,
 }
