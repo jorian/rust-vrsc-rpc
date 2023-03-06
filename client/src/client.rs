@@ -234,19 +234,29 @@ struct ListCurrenciesQueryObject {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SendCurrencyOutput {
+pub struct SendCurrencyOutput<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency: Option<&'static str>,
+    pub currency: Option<&'a str>,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: Amount,
     pub address: String,
 }
 
-impl SendCurrencyOutput {
-    pub fn new(currency: Option<&'static str>, amount: &Amount, address: &str) -> Self {
+impl<'a> SendCurrencyOutput<'a> {
+    pub fn new(currency: Option<&'a str>, amount: &Amount, address: &str) -> Self {
         SendCurrencyOutput {
             currency: currency,
             amount: amount.clone(),
+            address: address.to_string(),
+        }
+    }
+}
+
+impl<'a> From<(&Address, &Amount)> for SendCurrencyOutput<'a> {
+    fn from((address, amount): (&Address, &Amount)) -> Self {
+        Self {
+            currency: None,
+            amount: *amount,
             address: address.to_string(),
         }
     }
@@ -534,10 +544,10 @@ pub trait RpcApi: Sized {
     } // fromaddress '{"txid":"txid" | "tx":"hextx", "changeaddress":"transparentoriaddress", "deliver":"fullidnameoriaddresstodeliver" | {"currency":"currencynameorid","amount":n}, "accept":{"address":"addressorid","currency":"currencynameorid","amount"} | {identitydefinition}}' (returntx) (feeamount)
 
     /// Get a block, based on its hash (later on: and height todo).
-    fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<Block> {
+    fn get_block(&self, hash: &bitcoin::BlockHash, verbosity: u8) -> Result<Block> {
         let val = serde_json::to_value(hash)?;
 
-        self.call("getblock", &[val])
+        self.call("getblock", &[val, verbosity.into()])
         // the BTC rpc library explicitly validates the bytes that are returned from the daemon.
 
         // let hex: String = self.call("getblock", &[val])?;
@@ -551,10 +561,10 @@ pub trait RpcApi: Sized {
         // into_json()
     }
 
-    fn get_block_by_height(&self, height: u32) -> Result<Block> {
+    fn get_block_by_height(&self, height: u32, verbosity: u8) -> Result<Block> {
         // let val = serde_json::to_value(hash)?;
 
-        self.call("getblock", &[height.to_string().into()])
+        self.call("getblock", &[height.to_string().into(), verbosity.into()])
         // the BTC rpc library explicitly validates the bytes that are returned from the daemon.
 
         // let hex: String = self.call("getblock", &[val])?;

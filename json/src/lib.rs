@@ -14,6 +14,7 @@ pub mod identity;
 use crate::vrsc::{Address, Amount, PrivateKey, PublicKey, SignedAmount};
 
 use bitcoin::{BlockHash, Script, Txid};
+use identity::IdentityPrimary;
 use serde::*;
 use serde_json::Value;
 use std::{collections::HashMap, fmt::Display, str, str::FromStr};
@@ -242,14 +243,14 @@ pub struct Block {
     pub hash: bitcoin::BlockHash,
     #[serde(rename = "validationtype")]
     pub validation_type: ValidationType, //todo make this an Enum
-    pub postarget: Option<String>,
-    pub poshashbh: Option<String>,
-    pub poshashtx: Option<String>,
-    pub possourcetxid: Option<Txid>,
-    pub possourcevoutnum: Option<u32>,
-    pub posrewarddest: Option<Address>,
-    pub postxddest: Option<Address>,
-    pub confirmations: u32,
+    // pub postarget: Option<String>,
+    // pub poshashbh: Option<String>,
+    // pub poshashtx: Option<String>,
+    // pub possourcetxid: Option<Txid>,
+    // pub possourcevoutnum: Option<u32>,
+    // pub posrewarddest: Option<Address>,
+    // pub postxddest: Option<Address>,
+    pub confirmations: i32,
     // #[serde(rename = "rawconfirmations")]
     // pub raw_confirmations: u32,
     pub size: u32,
@@ -261,7 +262,8 @@ pub struct Block {
     pub seg_id: i32,
     #[serde(rename = "finalsaplingroot")]
     pub final_sapling_root: String,
-    pub tx: Vec<bitcoin::hash_types::Txid>,
+    pub tx: Vec<BlockTransaction>,
+    // pub tx: Vec<bitcoin::hash_types::Txid>,
     pub time: u64,
     pub nonce: String,
     pub solution: String,
@@ -281,6 +283,19 @@ pub struct Block {
     #[serde(rename = "nextblockhash")]
     pub next_blockhash: Option<bitcoin::BlockHash>,
     pub proofroot: ProofRoot,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BlockTransaction {
+    pub txid: Txid,
+    pub overwintered: bool,
+    pub version: u8,
+    pub versiongroupid: String,
+    pub locktime: u32,
+    pub expiryheight: u32,
+    pub vin: Vec<TransactionVin>,
+    pub vout: Vec<TransactionVout>,
+    // pub vjoinsplit: Vec,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -324,6 +339,10 @@ pub struct WalletInfo {
     pub balance: f64,
     pub unconfirmed_balance: f64,
     pub immature_balance: f64,
+    pub eligible_staking_outputs: u32,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub eligible_staking_balance: Amount,
+    pub reserve_balance: Option<HashMap<String, f64>>,
     #[serde(rename = "txcount")]
     pub tx_count: u32,
     #[serde(rename = "keypoololdest")]
@@ -337,6 +356,9 @@ pub struct WalletInfo {
     #[serde(rename = "seedfp")]
     pub seed_fp: String,
 }
+
+// TODO deserialize reserve_balance as an Amount
+// pub struct WalletInfoReserveBalance { }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CleanedWalletTransactions {
@@ -377,6 +399,7 @@ pub struct GetTransactionResult {
     pub time: u64,
     pub timereceived: u64,
     pub vjoinsplit: Vec<Option<GetTransactionVJoinSplit>>,
+    pub details: Vec<GetTransactionDetails>,
     pub hex: String,
 }
 
@@ -395,16 +418,23 @@ pub struct GetTransactionDetails {
     account: String,
     pub address: Address,
     pub category: GetTransactionDetailsCategory,
+    pub blockstomaturity: Option<i16>,
     pub amount: f64,
     pub vout: u16,
     pub fee: Option<f64>,
     pub size: u32,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum GetTransactionDetailsCategory {
+    #[serde(rename = "send")]
     Send,
+    #[serde(rename = "receive")]
     Receive,
+    #[serde(rename = "mint")]
+    Mint,
+    #[serde(rename = "immature")]
+    Immature,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -504,8 +534,8 @@ pub struct GetRawTransactionResultVerbose {
     pub versiongroupid: String,
     pub locktime: u64,
     pub expiryheight: u32,
-    pub vin: Vec<GetRawTransactionVin>,
-    pub vout: Vec<GetRawTransactionVout>,
+    pub vin: Vec<TransactionVin>,
+    pub vout: Vec<TransactionVout>,
     pub vjoinsplit: Vec<GetRawTransactionVJoinSplit>,
     pub blockhash: Option<bitcoin::BlockHash>, // transaction might not be in a block yet
     pub height: Option<i32>,
@@ -515,12 +545,12 @@ pub struct GetRawTransactionResultVerbose {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GetRawTransactionVin {
+pub struct TransactionVin {
     pub txid: Option<bitcoin::Txid>,
     pub vout: Option<u32>,
     pub address: Option<String>,
     #[serde(rename = "scriptSig")]
-    pub script_sig: Option<GetRawTransactionVinScriptSig>,
+    pub script_sig: Option<TransactionVinScriptSig>,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc::opt", default)]
     pub value: Option<Amount>,
     #[serde(
@@ -534,22 +564,20 @@ pub struct GetRawTransactionVin {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GetRawTransactionVinScriptSig {
+pub struct TransactionVinScriptSig {
     pub asm: String,
     pub hex: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GetRawTransactionVout {
+pub struct TransactionVout {
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub value: Amount,
     #[serde(with = "vrsc::util::amount::serde::as_sat", rename = "valueSat")]
     pub value_sat: Amount,
-    // #[serde(with = "vrsc::util::amount::serde::as_kmd::opt")]
-    // pub interest: Option<Amount>,
     pub n: u32,
     #[serde(rename = "scriptPubKey")]
-    pub script_pubkey: GetRawTransactionVoutScriptPubKey,
+    pub script_pubkey: TransactionVoutScriptPubKey,
     #[serde(rename = "spentTxId")]
     pub spent_tx_id: Option<Txid>,
     #[serde(rename = "spentIndex")]
@@ -559,15 +587,16 @@ pub struct GetRawTransactionVout {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GetRawTransactionVoutScriptPubKey {
+pub struct TransactionVoutScriptPubKey {
     pub asm: String,
     pub hex: String,
     #[serde(rename = "reqSigs")]
-    pub required_sigs: Option<u32>,
+    pub req_sigs: Option<u32>,
     #[serde(rename = "type")]
-    pub _type: String,
+    pub _type: String, // cryptocondition, pubkey, scripthash, pubkeyhash TODO
     pub addresses: Option<Vec<Address>>,
-    // verus pbaas keys
+    pub identityprimary: Option<IdentityPrimary>,
+    pub spendableoutput: bool,
     pub reservetransfer: Option<GetRawTransactionScriptPubKeyReserveTransfer>,
     pub crosschainimport: Option<GetRawTransactionScriptPubKeyCrossChainImport>,
     pub reserveoutput: Option<GetRawTransactionScriptPubKeyReserveImport>,
@@ -908,8 +937,8 @@ pub struct PeerInfo {
     pub inbound: bool,
     pub startingheight: u64,
     pub banscore: u32,
-    pub synced_headers: u64,
-    pub synced_blocks: u64,
+    pub synced_headers: i64,
+    pub synced_blocks: i64,
     pub inflight: Vec<u64>,
     pub whitelisted: bool,
 }

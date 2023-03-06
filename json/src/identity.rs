@@ -9,7 +9,7 @@ use vrsc::Address;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Identity {
-    pub identity: InnerIdentity,
+    pub identity: IdentityPrimary,
     pub status: String,
     pub canspendfor: bool,
     pub cansignfor: bool,
@@ -19,7 +19,7 @@ pub struct Identity {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct InnerIdentity {
+pub struct IdentityPrimary {
     pub version: u16,
     pub flags: u16,
     pub primaryaddresses: Vec<Address>,
@@ -28,7 +28,7 @@ pub struct InnerIdentity {
     pub identityaddress: Address,
     pub parent: Address,
     pub systemid: Address,
-    pub contentmap: HashMap<String, String>,
+    pub contentmap: serde_json::Value,
     pub revocationauthority: Address,
     pub recoveryauthority: Address,
     pub privateaddress: Option<String>,
@@ -94,7 +94,7 @@ pub struct Offer {
 #[serde(untagged)]
 pub enum OfferVariant {
     CurrencyOffer(HashMap<String, f64>),
-    IdentityOffer(IdentityOffer),
+    IdentityOffer(IdentityPrimary),
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -106,7 +106,7 @@ pub struct IdentityOffer {
 }
 
 // #[derive(Clone, Debug, Deserialize, Serialize)]
-pub type IdentitiesWithAddressResult = Vec<InnerIdentity>;
+pub type IdentitiesWithAddressResult = Vec<IdentityPrimary>;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetVDXFIdResult {
