@@ -243,13 +243,13 @@ pub struct Block {
     pub hash: bitcoin::BlockHash,
     #[serde(rename = "validationtype")]
     pub validation_type: ValidationType, //todo make this an Enum
-    // pub postarget: Option<String>,
-    // pub poshashbh: Option<String>,
-    // pub poshashtx: Option<String>,
-    // pub possourcetxid: Option<Txid>,
-    // pub possourcevoutnum: Option<u32>,
-    // pub posrewarddest: Option<Address>,
-    // pub postxddest: Option<Address>,
+    pub postarget: Option<String>,
+    pub poshashbh: Option<String>,
+    pub poshashtx: Option<String>,
+    pub possourcetxid: Option<Txid>,
+    pub possourcevoutnum: Option<u32>,
+    pub posrewarddest: Option<Address>,
+    pub postxddest: Option<Address>,
     pub confirmations: i32,
     // #[serde(rename = "rawconfirmations")]
     // pub raw_confirmations: u32,
@@ -429,6 +429,8 @@ pub struct GetTransactionDetails {
 pub enum GetTransactionDetailsCategory {
     #[serde(rename = "send")]
     Send,
+    #[serde(rename = "generate")]
+    Generate,
     #[serde(rename = "receive")]
     Receive,
     #[serde(rename = "mint")]

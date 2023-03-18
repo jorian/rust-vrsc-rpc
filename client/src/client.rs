@@ -371,6 +371,27 @@ pub trait RpcApi: Sized {
     fn get_address_utxos(&self, addresses: Vec<Address>) -> Result<Vec<AddressUtxos>> {
         self.call("getaddressutxos", &[into_json(AddressList { addresses })?])
     }
+
+    fn get_address_deltas(
+        &self,
+        addresses: Vec<Address>,
+        start: Option<u32>,
+        end: Option<u32>,
+    ) -> Result<Vec<AddressUtxos>> {
+        let defaults = [into_json(0)?, into_json(9999999)?];
+
+        let mut args = [
+            into_json(AddressList { addresses })?,
+            opt_into_json(start)?,
+            opt_into_json(end)?,
+        ];
+
+        self.call("getaddressdeltas", handle_defaults(&mut args, &defaults))
+    }
+
+    fn get_address_balance(&self, addresses: Vec<Address>) -> Result<Vec<AddressUtxos>> {
+        self.call("getaddressdeltas", &[into_json(AddressList { addresses })?])
+    }
     // Identity
 
     /// Simplest way of getting an identity
@@ -929,7 +950,7 @@ pub trait RpcApi: Sized {
         &self,
         minconf: Option<usize>,
         maxconf: Option<usize>,
-        addresses: Option<&[&Address]>,
+        addresses: Option<&Vec<Address>>,
     ) -> Result<Vec<ListUnspentResult>> {
         let mut args = [
             opt_into_json(minconf)?,
