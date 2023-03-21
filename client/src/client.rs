@@ -374,19 +374,17 @@ pub trait RpcApi: Sized {
 
     fn get_address_deltas(
         &self,
-        addresses: Vec<Address>,
-        start: Option<u32>,
-        end: Option<u32>,
-    ) -> Result<Vec<AddressUtxos>> {
-        let defaults = [into_json(0)?, into_json(9999999)?];
+        addresses: &[&Address],
+        start: Option<u64>,
+        end: Option<u64>,
+    ) -> Result<Vec<AddressDelta>> {
+        let input = json!({
+            "addresses": into_json(addresses)?,
+            "start": start.unwrap_or(0),
+            "end": end.unwrap_or(9999999)
+        });
 
-        let mut args = [
-            into_json(AddressList { addresses })?,
-            opt_into_json(start)?,
-            opt_into_json(end)?,
-        ];
-
-        self.call("getaddressdeltas", handle_defaults(&mut args, &defaults))
+        self.call("getaddressdeltas", &[input])
     }
 
     fn get_address_balance(&self, addresses: Vec<Address>) -> Result<Vec<AddressUtxos>> {
@@ -582,7 +580,7 @@ pub trait RpcApi: Sized {
         // into_json()
     }
 
-    fn get_block_by_height(&self, height: u32, verbosity: u8) -> Result<Block> {
+    fn get_block_by_height(&self, height: u64, verbosity: u8) -> Result<Block> {
         // let val = serde_json::to_value(hash)?;
 
         self.call("getblock", &[height.to_string().into(), verbosity.into()])

@@ -211,10 +211,24 @@ pub struct AddressUtxos {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AddressDelta {
+    #[serde(with = "vrsc::util::amount::serde::as_sat")]
+    pub satoshis: SignedAmount,
+    pub txid: Txid,
+    pub index: i32,
+    pub blockindex: i32,
+    pub height: i64,
+    pub spending: bool,
+    pub address: Address,
+    pub blocktime: u64,
+    pub currencyvalues: Option<HashMap<Address, f64>>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CoinSupply {
     pub result: String,
     pub coin: String,
-    pub height: i32,
+    pub height: i64,
     pub supply: f64,
     #[serde(rename = "zfunds")]
     pub z_funds: f64,
@@ -254,7 +268,7 @@ pub struct Block {
     // #[serde(rename = "rawconfirmations")]
     // pub raw_confirmations: u32,
     pub size: u32,
-    pub height: u32,
+    pub height: u64,
     pub version: u32,
     #[serde(rename = "merkleroot")]
     pub merkle_root: bitcoin::TxMerkleNode,
@@ -292,7 +306,7 @@ pub struct BlockTransaction {
     pub version: u8,
     pub versiongroupid: String,
     pub locktime: u32,
-    pub expiryheight: u32,
+    pub expiryheight: u64,
     pub vin: Vec<TransactionVin>,
     pub vout: Vec<TransactionVout>,
     // pub vjoinsplit: Vec,
@@ -393,7 +407,7 @@ pub struct GetTransactionResult {
     pub blockhash: Option<bitcoin::BlockHash>,
     pub blockindex: Option<u32>,
     pub blocktime: Option<u64>,
-    pub expiryheight: Option<u32>,
+    pub expiryheight: Option<u64>,
     pub txid: bitcoin::Txid,
     pub walletconflicts: Vec<Option<bitcoin::Txid>>,
     pub time: u64,
@@ -535,12 +549,12 @@ pub struct GetRawTransactionResultVerbose {
     pub version: u32,
     pub versiongroupid: String,
     pub locktime: u64,
-    pub expiryheight: u32,
+    pub expiryheight: u64,
     pub vin: Vec<TransactionVin>,
     pub vout: Vec<TransactionVout>,
     pub vjoinsplit: Vec<GetRawTransactionVJoinSplit>,
     pub blockhash: Option<bitcoin::BlockHash>, // transaction might not be in a block yet
-    pub height: Option<i32>,
+    pub height: Option<i64>,
     pub confirmations: Option<u32>,
     pub time: Option<u64>,
     pub blocktime: Option<u64>,
@@ -681,9 +695,9 @@ pub struct BlockchainInfo {
     pub chain: String,
     pub name: String,
     pub chainid: Address,
-    pub blocks: u32,
+    pub blocks: u64,
     // pub synced: bool,
-    pub headers: u32,
+    pub headers: u64,
     pub bestblockhash: bitcoin::BlockHash,
     pub difficulty: f64,
     pub verificationprogress: f64,
@@ -708,7 +722,7 @@ pub struct BlockchainInfoConsensus {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockchainInfoUpgrade {
     pub name: String,
-    pub activationheight: u32,
+    pub activationheight: u64,
     pub status: String,
     pub info: String,
 }
@@ -733,10 +747,10 @@ pub struct BlockchainInfoSoftforkProgress {
 pub struct BlockHeader {
     pub hash: bitcoin::BlockHash,
     pub confirmations: u32,
-    pub height: u32,
+    pub height: u64,
     pub version: u32,
     pub merkleroot: String,
-    pub time: u32,
+    pub time: u64,
     pub nonce: String,
     pub solution: String,
     pub bits: String,
@@ -797,7 +811,7 @@ pub struct RawMempoolTransactionInfo {
     pub size: u32,
     pub fee: f32,
     pub time: u32,
-    pub height: u32,
+    pub height: u64,
     pub startingpriority: f64,
     pub currentpriority: f64,
     pub depends: Vec<String>, // this either returns an empty array or an array with txids
@@ -834,7 +848,7 @@ pub struct ScriptPubKey {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TxOutSetInfoResult {
-    pub height: u32,
+    pub height: u64,
     pub bestblock: bitcoin::BlockHash,
     pub transactions: u64,
     pub txouts: u32,
@@ -862,7 +876,7 @@ pub struct MinerId {
 pub struct Notaries {
     pub notaries: Vec<Notary>,
     pub numnotaries: u8,
-    pub height: u32,
+    pub height: u64,
     pub timestamp: u64,
 }
 
