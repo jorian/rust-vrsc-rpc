@@ -9,6 +9,7 @@ use vrsc::Address;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Identity {
+    pub fullyqualifiedname: String,
     pub identity: IdentityPrimary,
     pub status: String,
     pub canspendfor: bool,
