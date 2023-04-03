@@ -261,7 +261,7 @@ pub struct Block {
     pub poshashbh: Option<String>,
     pub poshashtx: Option<String>,
     pub possourcetxid: Option<Txid>,
-    pub possourcevoutnum: Option<u32>,
+    pub possourcevoutnum: Option<u16>,
     pub posrewarddest: Option<Address>,
     pub postxddest: Option<Address>,
     pub confirmations: i32,

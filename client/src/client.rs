@@ -5,7 +5,7 @@ use crate::error::Error;
 use crate::json::identity::*;
 use crate::json::*;
 use serde_json::{json, Value};
-use tracing::*;
+use tracing::debug;
 
 use jsonrpc;
 use std::collections::HashMap;
@@ -396,6 +396,18 @@ pub trait RpcApi: Sized {
     /// TODO add i-address, height, txproof, txproofheight
     fn get_identity(&self, name: &str) -> Result<Identity> {
         self.call("getidentity", &[name.into()])
+    }
+
+    fn get_identity_history(
+        &self,
+        identity_str: &str,
+        start: u32,
+        end: u32,
+    ) -> Result<IdentityHistory> {
+        self.call(
+            "getidentityhistory",
+            &[identity_str.into(), start.into(), end.into()],
+        )
     }
 
     // TODO: RPC returns nothing on empty list

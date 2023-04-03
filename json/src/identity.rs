@@ -2,10 +2,30 @@ use std::{collections::HashMap, str::FromStr};
 
 use bitcoin::{
     hashes::{ripemd160::Hash as hash160, sha256::Hash as hash256},
-    Txid,
+    BlockHash, Txid,
 };
 use serde::de::{Deserialize, Deserializer};
 use vrsc::Address;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct IdentityHistory {
+    pub fullyqualifiedname: String,
+    pub status: String,
+    pub canspendfor: bool,
+    pub cansignfor: bool,
+    pub blockheight: i64,
+    pub txid: Txid, // TODO hash
+    pub vout: u32,
+    pub history: Vec<IdentityHistoryObject>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct IdentityHistoryObject {
+    pub identity: IdentityPrimary,
+    pub blockhash: BlockHash,
+    pub height: u64,
+    pub output: InnerIdentityTxOut,
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Identity {
@@ -15,7 +35,7 @@ pub struct Identity {
     pub canspendfor: bool,
     pub cansignfor: bool,
     pub blockheight: i64,
-    pub txid: String, // TODO hash
+    pub txid: Txid, // TODO hash
     pub vout: u32,
 }
 
