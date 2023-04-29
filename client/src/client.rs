@@ -4,6 +4,7 @@ use crate::chain_config::{Auth, ConfigFile};
 use crate::error::Error;
 use crate::json::identity::*;
 use crate::json::*;
+use serde::de::IntoDeserializer;
 use serde_json::{json, Value};
 use tracing::debug;
 
@@ -283,9 +284,30 @@ pub trait RpcApi: Sized {
         self.call("getcurrency", &[into_json(currency)?])
     }
 
-    // get_currency_state() for
+    // fn get_currency_converters(&self, currency: &str) -> Result<Vec<GetCurrencyConvertersResult>> {
+    //     self.call("getcurrency", &[into_json(currency)?])
+    // }
+
     fn get_currency_state(&self, currency: &str) -> Result<Vec<GetCurrencyStateResult>> {
         self.call("getcurrencystate", &[into_json(currency)?])
+    }
+
+    fn get_currency_balance(
+        &self,
+        address: &Address,
+        min_conf: Option<u64>,
+        friendly_names: Option<bool>,
+        include_shared: Option<bool>,
+    ) -> Result<CurrencyBalanceResult> {
+        let mut args = [
+            address.to_string().into(),
+            opt_into_json(min_conf)?,
+            opt_into_json(friendly_names)?,
+            opt_into_json(include_shared)?,
+        ];
+        let defaults = [into_json(1)?, into_json(true)?, into_json(false)?];
+
+        self.call("getcurrencybalance", handle_defaults(&mut args, &defaults))
     }
     fn get_vdxf_id(&self, uri: &str, options: Option<Value>) -> Result<GetVDXFIdResult> {
         self.call("getvdxfid", &[uri.into(), opt_into_json(options)?])

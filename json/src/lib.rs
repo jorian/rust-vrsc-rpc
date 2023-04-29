@@ -58,13 +58,15 @@ pub struct Currency {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CurrencyDefinition {
     pub version: u8,
+    pub options: u16,
+    pub name: String,
     pub currencyid: Address,
     pub parent: Option<Address>,
     pub systemid: Address,
+    pub notarizationprotocol: u32,
+    pub proofprotocol: u32,
     pub launchsystemid: Option<Address>,
-    pub currencyidhex: String,
-    pub name: String,
-    pub options: u16,
+    pub currencyidhex: Option<String>,
     pub fullyqualifiedname: String,
 }
 
@@ -107,6 +109,9 @@ pub struct ReserveCurrency {
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub priceinreserve: Amount,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyBalanceResult(pub HashMap<String, f64>);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ZOperationStatusResult {
