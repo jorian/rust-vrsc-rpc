@@ -276,6 +276,10 @@ pub trait RpcApi: Sized {
         args: &[serde_json::Value],
     ) -> Result<T>;
 
+    fn set_generate(&self, generate: bool, threads: u8) -> Result<()> {
+        self.call("setgenerate", &[generate.into(), threads.into()])
+    }
+
     fn rescan_from_height(&self, height: u64) -> Result<()> {
         self.call("rescanfromheight", &[height.into()])
     }
