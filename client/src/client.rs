@@ -129,9 +129,12 @@ pub struct Client {
 
 impl Client {
     pub fn chain(testnet: bool, currencyidhex: &str, auth: Auth) -> Result<Self> {
+        dbg!(testnet);
+
         match auth {
             Auth::ConfigFile => {
-                let config = ConfigFile::pbaas(testnet, currencyidhex)?;
+                let config = dbg!(ConfigFile::pbaas(testnet, currencyidhex)?);
+
                 Ok(Client {
                     client: jsonrpc::client::Client::simple_http(
                         &format!("http://127.0.0.1:{}", config.rpcport),

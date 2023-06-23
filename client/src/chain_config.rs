@@ -55,7 +55,7 @@ impl ConfigFile {
     pub fn get_verustest_installation_folder() -> Result<PathBuf> {
         if let Some(mut path) = dirs::home_dir() {
             match os_info::get().os_type() {
-                OSType::Ubuntu | OSType::Linux => path.push(".verustest"),
+                OSType::Ubuntu | OSType::Linux | OSType::Debian => path.push(".verustest"),
                 OSType::Macos => {
                     path.push("Library");
                     path.push("Application Support");
