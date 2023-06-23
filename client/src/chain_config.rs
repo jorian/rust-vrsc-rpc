@@ -32,6 +32,7 @@ impl ConfigFile {
                     full_path.push(path);
                     full_path.push(".komodo");
                 } else {
+                    dbg!(&full_path);
                     return Err(Error::IOError(ErrorKind::NotFound.into()));
                 }
             }
@@ -47,6 +48,7 @@ impl ConfigFile {
         }
 
         if !full_path.is_dir() {
+            dbg!(&full_path);
             return Err(Error::IOError(ErrorKind::NotFound.into()));
         }
 
@@ -102,6 +104,7 @@ impl ConfigFile {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
                 path.push("vrsctest");
                 path.push("vrsctest.conf");
+                dbg!(&path);
             }
             false => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
