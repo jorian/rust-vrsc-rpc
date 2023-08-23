@@ -91,7 +91,7 @@ pub struct CurrencyState {
     pub flags: u16,
     pub version: u16,
     pub currencyid: Address,
-    pub reservecurrencies: Vec<ReserveCurrency>,
+    pub reservecurrencies: Option<Vec<ReserveCurrency>>,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub initialsupply: Amount,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
