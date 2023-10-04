@@ -4,7 +4,6 @@ use crate::chain_config::{Auth, ConfigFile};
 use crate::error::Error;
 use crate::json::identity::*;
 use crate::json::*;
-use serde::de::IntoDeserializer;
 use serde_json::{json, Value};
 use tracing::debug;
 

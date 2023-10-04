@@ -1,12 +1,11 @@
+use crate::client::Result;
 use crate::error::Error;
 use os_info::Type as OSType;
 use std::collections::HashMap;
+use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
-use std::{fs, result};
 use tracing::debug;
-
-pub type Result<T> = result::Result<T, Error>;
 
 /// Let the system find a local installation, or supply your own connection details.
 #[derive(Clone, Debug)]
