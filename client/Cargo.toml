@@ -4,7 +4,11 @@ description = "A wrapper for Verus RPCs"
 edition = "2021"
 license = "MIT"
 name = "vrsc-rpc"
+<<<<<<< Updated upstream
 version = "0.1.15"
+=======
+version = "0.1.11"
+>>>>>>> Stashed changes
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
