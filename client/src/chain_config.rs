@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
-use tracing::debug;
 
 /// Let the system find a local installation, or supply your own connection details.
 #[derive(Clone, Debug)]
@@ -25,13 +24,12 @@ impl ConfigFile {
     pub fn get_komodo_installation_folder() -> Result<PathBuf> {
         let mut full_path = PathBuf::new();
 
-        match dbg!(os_info::get().os_type()) {
+        match os_info::get().os_type() {
             OSType::Ubuntu | OSType::Linux | OSType::Debian | OSType::OracleLinux => {
                 if let Some(path) = dirs::home_dir() {
                     full_path.push(path);
                     full_path.push(".komodo");
                 } else {
-                    dbg!(&full_path);
                     return Err(Error::IOError(ErrorKind::NotFound.into()));
                 }
             }
@@ -47,7 +45,6 @@ impl ConfigFile {
         }
 
         if !full_path.is_dir() {
-            dbg!(&full_path);
             return Err(Error::IOError(ErrorKind::NotFound.into()));
         }
 
@@ -65,8 +62,6 @@ impl ConfigFile {
                 }
                 _ => return Err(Error::IOError(ErrorKind::Unsupported.into())),
             }
-
-            debug!("{:?}", &path);
 
             path.push("pbaas");
 
@@ -89,7 +84,6 @@ impl ConfigFile {
                 path.push(currencyidhex);
                 path.push(format!("{}.conf", currencyidhex));
 
-                debug!("{:?}", &path);
                 get_config(&path)
             }
             false => unimplemented!(),
@@ -103,7 +97,6 @@ impl ConfigFile {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
                 path.push("vrsctest");
                 path.push("vrsctest.conf");
-                dbg!(&path);
             }
             false => {
                 path = self::ConfigFile::get_komodo_installation_folder()?;
@@ -112,7 +105,6 @@ impl ConfigFile {
             }
         }
 
-        debug!("{:?}", &path);
         get_config(&path)
     }
 }

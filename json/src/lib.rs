@@ -71,6 +71,9 @@ pub struct CurrencyDefinition {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PreAllocation(pub HashMap<Address, f64>);
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetCurrencyResult {
     pub version: u16,
     pub options: u16,
@@ -83,31 +86,34 @@ pub struct GetCurrencyResult {
     pub launchsystemid: Address,
     pub startblock: u64,
     pub endblock: u64,
-    pub currencies: Vec<Address>,
-    pub weights: Vec<f64>,
-    pub conversions: Vec<f64>,
-    pub prelaunchdiscount: f64,
-    pub initialsupply: f64,
-    pub prelaunchcarveout: f64,
-    pub gateway: Address,
-    pub initialcontributions: Vec<f64>,
-    pub gatewayconverterissuance: f64,
+    pub preallocations: Option<Vec<PreAllocation>>,
+    pub currencies: Option<Vec<Address>>,
+    pub weights: Option<Vec<f64>>,
+    pub conversions: Option<Vec<f64>>,
+    pub initialsupply: Option<f64>,
+    pub prelaunchdiscount: Option<f64>,
+    pub prelaunchcarveout: Option<f64>,
+    pub initialcontributions: Option<Vec<f64>>,
+    pub gateway: Option<Address>,
+    pub gatewayconverterissuance: Option<f64>,
     pub idregistrationfees: f64,
     pub idreferrallevels: u8,
     pub idimportfees: f64,
     pub currencyidhex: String,
     pub fullyqualifiedname: String,
-    pub magicnumber: u64,
+    pub magicnumber: i64,
     pub currencynames: Option<CurrencyNames>,
     pub definitiontxid: Txid,
     pub definitiontxout: u16,
     pub bestheight: u64,
-    pub besttxid: Txid,
+    pub lastconfirmedheight: Option<u64>,
+    pub besttxid: Option<Txid>,
     pub bestcurrencystate: CurrencyState,
+    pub lastconfirmedcurrencystate: Option<CurrencyState>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CurrencyNames(HashMap<Address, String>);
+pub struct CurrencyNames(pub HashMap<Address, String>);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetCurrencyStateResult {

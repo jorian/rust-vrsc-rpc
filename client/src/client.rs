@@ -128,11 +128,9 @@ pub struct Client {
 
 impl Client {
     pub fn chain(testnet: bool, currencyidhex: &str, auth: Auth) -> Result<Self> {
-        dbg!(testnet);
-
         match auth {
             Auth::ConfigFile => {
-                let config = dbg!(ConfigFile::pbaas(testnet, currencyidhex)?);
+                let config = ConfigFile::pbaas(testnet, currencyidhex)?;
 
                 Ok(Client {
                     client: jsonrpc::client::Client::simple_http(
@@ -157,8 +155,6 @@ impl Client {
     pub fn vrsc(testnet: bool, auth: Auth) -> Result<Self> {
         match auth {
             Auth::ConfigFile => {
-                debug!("got here 1");
-                dbg!("got here 1");
                 let config = ConfigFile::vrsc(testnet)?;
                 Ok(Client {
                     client: jsonrpc::client::Client::simple_http(
