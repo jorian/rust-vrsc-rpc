@@ -294,7 +294,6 @@ pub struct CoinSupply {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Block {
-    // pub last_notarized_height: u32,
     pub hash: bitcoin::BlockHash,
     #[serde(rename = "validationtype")]
     pub validation_type: ValidationType, //todo make this an Enum
@@ -306,8 +305,6 @@ pub struct Block {
     pub posrewarddest: Option<Address>,
     pub postxddest: Option<Address>,
     pub confirmations: i32,
-    // #[serde(rename = "rawconfirmations")]
-    // pub raw_confirmations: u32,
     pub size: u32,
     pub height: u64,
     pub version: u32,
@@ -345,15 +342,14 @@ pub struct BlockTransaction {
     pub txid: Txid,
     pub overwintered: bool,
     pub version: u8,
-    // pub versiongroupid: String,
     pub locktime: u32,
     pub expiryheight: Option<u64>,
     pub vin: Vec<TransactionVin>,
     pub vout: Vec<TransactionVout>,
-    // pub vjoinsplit: Vec,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum ValidationType {
     #[serde(rename = "stake")]
     Stake,
@@ -365,7 +361,7 @@ pub enum ValidationType {
 pub struct ProofRoot {
     pub version: u32,
     #[serde(rename = "type")]
-    pub proof_type: u32,
+    pub r#type: u32,
     pub systemid: Address,
     pub height: u64,
     pub stateroot: String,
@@ -374,14 +370,13 @@ pub struct ProofRoot {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ValuePool {
     pub id: String,
     pub monitored: bool,
-    #[serde(rename = "chainValue")]
     pub chain_value: f64,
     #[serde(rename = "chainValueZat")]
     pub chain_value_sat: u64,
-    #[serde(rename = "valueDelta")]
     pub value_delta: Option<f64>,
     #[serde(rename = "valueDeltaZat")]
     pub value_delta_sat: Option<i64>,
@@ -441,7 +436,6 @@ pub struct ConvertedPassphrase {
 pub struct GetTransactionResult {
     pub amount: f64,
     pub fee: Option<f64>,
-    // pub rawconfirmations: u32,
     pub generated: Option<bool>,
     // confirmations is -1 when not in mempool
     pub confirmations: i32,
@@ -481,16 +475,12 @@ pub struct GetTransactionDetails {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
 pub enum GetTransactionDetailsCategory {
-    #[serde(rename = "send")]
     Send,
-    #[serde(rename = "generate")]
     Generate,
-    #[serde(rename = "receive")]
     Receive,
-    #[serde(rename = "mint")]
     Mint,
-    #[serde(rename = "immature")]
     Immature,
 }
 
@@ -650,7 +640,7 @@ pub struct TransactionVoutScriptPubKey {
     #[serde(rename = "reqSigs")]
     pub req_sigs: Option<u32>,
     #[serde(rename = "type")]
-    pub _type: String, // cryptocondition, pubkey, scripthash, pubkeyhash TODO
+    pub r#type: String, // cryptocondition, pubkey, scripthash, pubkeyhash TODO
     pub addresses: Option<Vec<Address>>,
     pub identityprimary: Option<IdentityPrimary>,
     pub spendableoutput: bool,
@@ -722,13 +712,6 @@ pub struct GetRawTransactionResult(String);
 pub struct OpReturnBurnResult {
     hex: String,
 }
-
-// #[derive(Clone, Debug, Deserialize, Serialize)]
-// pub struct SetPubkeyResult {
-//     pub ismine: String,
-//     pub address: Address,
-//     pub pubkey: PublicKey,
-// }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockchainInfo {

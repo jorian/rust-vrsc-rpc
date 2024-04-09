@@ -5,9 +5,8 @@ use crate::error::Error;
 use crate::json::identity::*;
 use crate::json::*;
 use serde_json::{json, Value};
-use tracing::debug;
 
-use jsonrpc;
+use jsonrpc::{self, arg};
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
@@ -204,21 +203,9 @@ impl RpcApi for Client {
         cmd: &str,
         args: &[serde_json::Value],
     ) -> Result<T> {
-        let raw_args: Vec<_> = args
-            .iter()
-            .map(|a| {
-                let json_string = serde_json::to_string(a)?;
-                serde_json::value::RawValue::from_string(json_string)
-            })
-            .map(|a| a.map_err(|e| Error::Json(e)))
-            .collect::<Result<Vec<_>>>()?;
-        let req = self.client.build_request(&cmd, &raw_args);
-
-        debug!("{:#?}", &req);
-
+        let raw_args = arg(args);
+        let req = self.client.build_request(&cmd, Some(&raw_args));
         let resp = self.client.send_request(req).map_err(Error::from);
-
-        debug!("{:#?}", &resp);
 
         Ok(resp?.result()?)
     }
@@ -354,23 +341,23 @@ pub trait RpcApi: Sized {
         self.call("z_getoperationstatus", &[into_json(opid)?])
     }
 
-    // fn z_shield_coinbase(
-    //     &self,
-    //     from: &str,
-    //     to_zaddress: &str,
-    //     fee: Option<f64>,
-    //     limit: Option<u8>,
-    // ) -> Result<ShieldCoinbaseResult> {
-    //     self.call(
-    //         "z_shieldcoinbase",
-    //         &[
-    //             from.into(),
-    //             to_zaddress.into(),
-    //             opt_into_json(fee)?,
-    //             opt_into_json(limit)?,
-    //         ],
-    //     )
-    // }
+    fn z_shield_coinbase(
+        &self,
+        from: &str,
+        to_zaddress: &str,
+        fee: Option<f64>,
+        limit: Option<u8>,
+    ) -> Result<ShieldCoinbaseResult> {
+        self.call(
+            "z_shieldcoinbase",
+            &[
+                from.into(),
+                to_zaddress.into(),
+                opt_into_json(fee)?,
+                opt_into_json(limit)?,
+            ],
+        )
+    }
 
     // the from address can be sapling, an id, an actual address or a wildcard address
     fn send_currency(
