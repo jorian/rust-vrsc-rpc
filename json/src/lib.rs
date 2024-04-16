@@ -14,7 +14,7 @@ pub mod identity;
 use crate::vrsc::{Address, Amount, PrivateKey, PublicKey, SignedAmount};
 
 use bitcoin::{BlockHash, Script, Txid};
-use identity::IdentityPrimary;
+use identity::{IdentityPrimary, IdentityReservation};
 use serde::*;
 use serde_json::Value;
 use std::{collections::HashMap, fmt::Display, str, str::FromStr};
@@ -351,9 +351,7 @@ pub struct BlockTransaction {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValidationType {
-    #[serde(rename = "stake")]
     Stake,
-    #[serde(rename = "work")]
     Work,
 }
 
@@ -643,6 +641,8 @@ pub struct TransactionVoutScriptPubKey {
     pub r#type: String, // cryptocondition, pubkey, scripthash, pubkeyhash TODO
     pub addresses: Option<Vec<Address>>,
     pub identityprimary: Option<IdentityPrimary>,
+    #[serde(rename = "identityreservation")]
+    pub identity_reservation: Option<IdentityReservation>,
     pub spendableoutput: bool,
     pub reservetransfer: Option<GetRawTransactionScriptPubKeyReserveTransfer>,
     pub crosschainimport: Option<GetRawTransactionScriptPubKeyCrossChainImport>,

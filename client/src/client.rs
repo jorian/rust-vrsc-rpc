@@ -11,6 +11,7 @@ use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::path::PathBuf;
 use std::result;
+use tracing::debug;
 use vrsc::util::address::AddressType;
 use vrsc::*;
 pub type Result<T> = result::Result<T, Error>;
@@ -126,6 +127,20 @@ pub struct Client {
 }
 
 impl Client {
+    pub fn rpc(auth: Auth) -> Result<Self> {
+        match auth {
+            Auth::UserPass(url, rpcuser, rpcpassword) => Ok(Client {
+                client: jsonrpc::client::Client::simple_http(
+                    &url,
+                    Some(rpcuser),
+                    Some(rpcpassword),
+                )
+                .unwrap(),
+            }),
+            _ => panic!("only allowed when provided with rpcuser and rpcpassword"),
+        }
+    }
+
     pub fn chain(testnet: bool, currencyidhex: &str, auth: Auth) -> Result<Self> {
         match auth {
             Auth::ConfigFile => {
@@ -206,6 +221,8 @@ impl RpcApi for Client {
         let raw_args = arg(args);
         let req = self.client.build_request(&cmd, Some(&raw_args));
         let resp = self.client.send_request(req).map_err(Error::from);
+
+        debug!("RPC response: {resp:#?}");
 
         Ok(resp?.result()?)
     }

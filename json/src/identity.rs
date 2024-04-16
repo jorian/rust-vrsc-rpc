@@ -5,6 +5,8 @@ use bitcoin::{
     BlockHash, Txid,
 };
 use serde::de::{Deserialize, Deserializer};
+use serde_with::serde_as;
+use serde_with::NoneAsEmptyString;
 use vrsc::Address;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -55,6 +57,18 @@ pub struct IdentityPrimary {
     pub privateaddress: Option<String>,
     pub timelock: u64,
     pub txout: Option<InnerIdentityTxOut>,
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct IdentityReservation {
+    pub version: u16,
+    pub name: String,
+    pub parent: Address,
+    pub salt: String,
+    #[serde_as(as = "NoneAsEmptyString")]
+    pub referral: Option<String>,
+    pub nameid: Address,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
