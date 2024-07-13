@@ -116,10 +116,18 @@ pub struct GetCurrencyResult {
 pub struct CurrencyNames(pub HashMap<Address, String>);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct GetCurrencyStateResult {
+#[serde(untagged)]
+pub enum GetCurrencyStateResult {
+    Data(GetCurrencyStateResultInner),
+    TotalVolume { totalvolume: f64 },
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetCurrencyStateResultInner {
     pub height: u64,
     pub blocktime: u64,
     pub currencystate: CurrencyState,
+    pub conversiondata: Option<CurrencyStateConversionData>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -134,6 +142,52 @@ pub struct CurrencyState {
     pub emitted: Amount,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub supply: Amount,
+    pub currencies: HashMap<Address, CurrencyStateCurrency>,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub primarycurrencyfees: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub primarycurrencyconversionfees: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub primarycurrencyout: SignedAmount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub preconvertedout: SignedAmount,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyStateCurrency {
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub reservein: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub primarycurrencyin: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub reserveout: Amount,
+    pub lastconversionprice: f64,
+    pub viaconversionprice: f64,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub fees: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub conversionfees: Amount,
+    pub priorweights: f32,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyStateConversionData {
+    pub volumecurrency: String,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub volumethisinterval: Amount,
+    pub volumepairs: Vec<CurrencyStateConversionDataPair>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyStateConversionDataPair {
+    pub currency: String,
+    pub convertto: String,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub volume: Amount,
+    pub open: f64,
+    pub high: f64,
+    pub low: f64,
+    pub close: f64,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -148,6 +202,91 @@ pub struct ReserveCurrency {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CurrencyBalanceResult(pub HashMap<String, f64>);
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetCurrencyConvertersResult {
+    #[serde(flatten)]
+    pub currencies: HashMap<Address, CurrencyConverterCurrency>,
+    pub fullyqualifiedname: String,
+    pub height: u64,
+    pub output: CurrencyConverterOutput,
+    pub lastnotarization: CurrencyConverterNotarization,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyConverterCurrency {
+    pub version: u16,
+    pub options: u16,
+    pub name: String,
+    pub currencyid: Address,
+    pub parent: Address,
+    pub systemid: Address,
+    pub notarizationprotocol: u16,
+    pub proofprotocol: u16,
+    pub launchsystemid: Address,
+    pub startblock: u64,
+    pub endblock: u64,
+    pub currencies: Vec<Address>,
+    pub weights: Vec<f32>,
+    pub conversions: Vec<f64>,
+    pub initialsupply: f64,
+    pub prelaunchcarveout: f64,
+    pub gateway: Option<Address>,
+    pub initialcontributions: Option<Vec<f64>>,
+    pub gatewayconverterissuance: Option<f64>,
+    pub idregistrationfees: f64,
+    pub idreferrallevels: u8,
+    pub idimportfees: f64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyConverterOutput {
+    txid: Txid,
+    voutnum: u16,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CurrencyConverterNotarization {
+    pub version: u16,
+    pub launchcleared: bool,
+    pub launchconfirmed: bool,
+    pub launchcomplete: Option<bool>,
+    pub samechain: bool,
+    pub proposer: NotarizationProposer,
+    pub currencyid: Address,
+    pub notarizationheight: u64,
+    pub currencystate: CurrencyState,
+    pub prevnotarizationtxid: Txid,
+    pub prevnotarizationout: u16,
+    pub prevheight: u64,
+    pub hashprevcrossnotarization: String,
+    pub currencystates: Vec<String>,
+    pub proofroots: Vec<ProofRoot>,
+    pub nodes: Vec<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum NotarizationProposer {
+    Existing {
+        address: Address,
+        #[serde(rename = "type")]
+        ty: u16,
+    },
+    NonExisting {
+        undefined: String,
+        #[serde(rename = "type")]
+        ty: u16,
+    },
+}
+
+// #[derive(Clone, Debug, Deserialize, Serialize)]
+// pub struct NotarizationProposer {
+//     pub undefined: Option<String>,
+//     pub address: Option<String>,
+//     #[serde(rename = "type")]
+//     pub ty: u16,
+// }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ZOperationStatusResult {
@@ -359,12 +498,13 @@ pub enum ValidationType {
 pub struct ProofRoot {
     pub version: u32,
     #[serde(rename = "type")]
-    pub r#type: u32,
+    pub ty: u32,
     pub systemid: Address,
     pub height: u64,
     pub stateroot: String,
     pub blockhash: BlockHash,
     pub power: String,
+    pub gasprice: f64,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

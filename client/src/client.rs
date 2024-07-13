@@ -292,12 +292,24 @@ pub trait RpcApi: Sized {
         self.call("getcurrency", &[into_json(currency)?])
     }
 
-    // fn get_currency_converters(&self, currency: &str) -> Result<Vec<GetCurrencyConvertersResult>> {
-    //     self.call("getcurrency", &[into_json(currency)?])
-    // }
+    fn get_currency_converters(&self, currency: &str) -> Result<Vec<GetCurrencyConvertersResult>> {
+        self.call("getcurrencyconverters", &[into_json(currency)?])
+    }
 
-    fn get_currency_state(&self, currency: &str) -> Result<Vec<GetCurrencyStateResult>> {
-        self.call("getcurrencystate", &[into_json(currency)?])
+    fn get_currency_state(
+        &self,
+        currency: &str,
+        range: Option<&str>,
+        express_in: Option<&str>,
+    ) -> Result<Vec<GetCurrencyStateResult>> {
+        self.call(
+            "getcurrencystate",
+            &[
+                into_json(currency)?,
+                opt_into_json(range)?,
+                opt_into_json(express_in)?,
+            ],
+        )
     }
 
     fn get_currency_balance(
