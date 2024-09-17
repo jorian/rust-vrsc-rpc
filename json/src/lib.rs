@@ -142,7 +142,7 @@ pub struct CurrencyState {
     pub emitted: Amount,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub supply: Amount,
-    pub currencies: HashMap<Address, CurrencyStateCurrency>,
+    pub currencies: Option<HashMap<Address, CurrencyStateCurrency>>,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub primarycurrencyfees: Amount,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
@@ -242,22 +242,22 @@ pub struct CurrencyConverterCurrency {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CurrencyConverterOutput {
     txid: Txid,
-    voutnum: u16,
+    voutnum: u64,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CurrencyConverterNotarization {
     pub version: u16,
-    pub launchcleared: bool,
-    pub launchconfirmed: bool,
+    pub launchcleared: Option<bool>,
+    pub launchconfirmed: Option<bool>,
     pub launchcomplete: Option<bool>,
-    pub samechain: bool,
+    pub samechain: Option<bool>,
     pub proposer: NotarizationProposer,
     pub currencyid: Address,
     pub notarizationheight: u64,
     pub currencystate: CurrencyState,
     pub prevnotarizationtxid: Txid,
-    pub prevnotarizationout: u16,
+    pub prevnotarizationout: u64,
     pub prevheight: u64,
     pub hashprevcrossnotarization: String,
     pub currencystates: Vec<String>,
@@ -435,7 +435,7 @@ pub struct CoinSupply {
 pub struct Block {
     pub hash: bitcoin::BlockHash,
     #[serde(rename = "validationtype")]
-    pub validation_type: ValidationType, //todo make this an Enum
+    pub validation_type: ValidationType,
     pub postarget: Option<String>,
     pub poshashbh: Option<String>,
     pub poshashtx: Option<String>,
@@ -504,7 +504,7 @@ pub struct ProofRoot {
     pub stateroot: String,
     pub blockhash: BlockHash,
     pub power: String,
-    pub gasprice: f64,
+    pub gasprice: Option<f64>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
