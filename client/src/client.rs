@@ -238,32 +238,38 @@ struct ListCurrenciesQueryObject {
     pub systemtype: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SendCurrencyOutput<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<&'a str>,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub amount: Amount,
     pub address: String,
+    pub convertto: Option<String>,
+    pub via: Option<String>,
 }
 
 impl<'a> SendCurrencyOutput<'a> {
-    pub fn new(currency: Option<&'a str>, amount: &Amount, address: &str) -> Self {
+    pub fn new(
+        currency: Option<&'a str>,
+        amount: &Amount,
+        address: &str,
+        convertto: Option<&str>,
+        via: Option<&str>,
+    ) -> Self {
         SendCurrencyOutput {
             currency: currency,
             amount: amount.clone(),
             address: address.to_string(),
+            convertto: convertto.map(|c| c.to_string()),
+            via: via.map(|via| via.to_string()),
         }
     }
 }
 
 impl<'a> From<(&Address, &Amount)> for SendCurrencyOutput<'a> {
     fn from((address, amount): (&Address, &Amount)) -> Self {
-        Self {
-            currency: None,
-            amount: *amount,
-            address: address.to_string(),
-        }
+        Self::new(None, amount, &address.to_string(), None, None)
     }
 }
 

@@ -71,7 +71,7 @@ pub struct CurrencyDefinition {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PreAllocation(pub HashMap<Address, f64>);
+pub struct PreAllocation(pub HashMap<String, f64>);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GetCurrencyResult {
@@ -79,11 +79,11 @@ pub struct GetCurrencyResult {
     pub options: u16,
     pub name: String,
     pub currencyid: Address,
-    pub parent: Address,
+    pub parent: Option<String>,
     pub systemid: Address,
     pub notarizationprotocol: u8,
     pub proofprotocol: u8,
-    pub launchsystemid: Address,
+    pub launchsystemid: Option<Address>,
     pub startblock: u64,
     pub endblock: u64,
     pub preallocations: Option<Vec<PreAllocation>>,
@@ -108,7 +108,7 @@ pub struct GetCurrencyResult {
     pub bestheight: u64,
     pub lastconfirmedheight: Option<u64>,
     pub besttxid: Option<Txid>,
-    pub bestcurrencystate: CurrencyState,
+    pub bestcurrencystate: Option<CurrencyState>,
     pub lastconfirmedcurrencystate: Option<CurrencyState>,
 }
 
@@ -787,6 +787,7 @@ pub struct TransactionVoutScriptPubKey {
     pub reservetransfer: Option<GetRawTransactionScriptPubKeyReserveTransfer>,
     pub crosschainimport: Option<GetRawTransactionScriptPubKeyCrossChainImport>,
     pub reserveoutput: Option<GetRawTransactionScriptPubKeyReserveImport>,
+    pub reserve_balance: Option<HashMap<String, f64>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
