@@ -62,7 +62,7 @@ pub struct IdentityPrimary {
 #[serde_as]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IdentityReservation {
-    pub version: u16,
+    pub version: Option<u16>,
     pub name: String,
     pub parent: Address,
     pub salt: String,
