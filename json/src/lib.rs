@@ -184,10 +184,14 @@ pub struct CurrencyStateConversionDataPair {
     pub convertto: String,
     #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
     pub volume: Amount,
-    pub open: f64,
-    pub high: f64,
-    pub low: f64,
-    pub close: f64,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub open: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub high: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub low: Amount,
+    #[serde(with = "vrsc::util::amount::serde::as_vrsc")]
+    pub close: Amount,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

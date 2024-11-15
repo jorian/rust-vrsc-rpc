@@ -220,6 +220,9 @@ impl RpcApi for Client {
     ) -> Result<T> {
         let raw_args = arg(args);
         let req = self.client.build_request(&cmd, Some(&raw_args));
+
+        debug!(?req, "request");
+
         let resp = self.client.send_request(req).map_err(Error::from);
 
         debug!("RPC response: {resp:#?}");
@@ -298,8 +301,11 @@ pub trait RpcApi: Sized {
         self.call("getcurrency", &[into_json(currency)?])
     }
 
-    fn get_currency_converters(&self, currency: &str) -> Result<Vec<GetCurrencyConvertersResult>> {
-        self.call("getcurrencyconverters", &[into_json(currency)?])
+    fn get_currency_converters(
+        &self,
+        currency: impl AsRef<str>,
+    ) -> Result<Vec<GetCurrencyConvertersResult>> {
+        self.call("getcurrencyconverters", &[into_json(currency.as_ref())?])
     }
 
     fn get_currency_state(

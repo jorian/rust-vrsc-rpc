@@ -75,6 +75,30 @@ impl ConfigFile {
         }
     }
 
+    pub fn get_verus_pbaas_installation_folder() -> Result<PathBuf> {
+        if let Some(mut path) = dirs::home_dir() {
+            match os_info::get().os_type() {
+                OSType::Ubuntu | OSType::Linux | OSType::Debian => path.push(".verus"),
+                OSType::Macos => {
+                    path.push("Library");
+                    path.push("Application Support");
+                    path.push("Verus");
+                }
+                _ => return Err(Error::IOError(ErrorKind::Unsupported.into())),
+            }
+
+            path.push("pbaas");
+
+            if !path.is_dir() {
+                return Err(Error::IOError(ErrorKind::NotFound.into()));
+            }
+
+            Ok(path)
+        } else {
+            return Err(Error::IOError(ErrorKind::NotFound.into()));
+        }
+    }
+
     pub fn pbaas(testnet: bool, currencyidhex: &str) -> Result<Self> {
         let mut path;
 
@@ -86,7 +110,13 @@ impl ConfigFile {
 
                 get_config(&path)
             }
-            false => unimplemented!(),
+            false => {
+                path = self::ConfigFile::get_verus_pbaas_installation_folder()?;
+                path.push(currencyidhex);
+                path.push(format!("{}.conf", currencyidhex));
+
+                get_config(&path)
+            }
         }
     }
 
